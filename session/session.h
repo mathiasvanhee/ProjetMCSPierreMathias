@@ -1,11 +1,4 @@
-#define CHECK(sts, msg) \
-    if ((sts) == -1)    \
-    {                   \
-        perror(msg);    \
-        exit(-1);       \
-    }
 
-#define PAUSE(msg) printf("%s [touche]", msg); getchar();
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -16,6 +9,14 @@
 #include <arpa/inet.h>
 #include <errno.h>
 
+#define CHECK(sts, msg) \
+    if ((sts) == -1)    \
+    {                   \
+        perror(msg);    \
+        exit(-1);       \
+    }
+
+#define PAUSE(msg) printf("%s [touche]", msg); getchar();
 
 #define PORT_SVC 5000
 #define INADDR_SVC "127.0.0.1"
