@@ -50,13 +50,58 @@ void connectSrv(int sock, char * IPaddr, short port)
     CHECK(connect(sock, (struct sockaddr *)&addr, sizeof(addr)), "Pb-connect");
 }
 
-//TODO : autres fonctions qui lisent et écrivent dans les sockets :
-lireDgram(int sock, struct sockaddr_in * src, char * buffer);
-//recfrom, on récup le buffer, on récup l'addr du client qui a envoyé
-//résultat : exemple = nb d'octets reçus
 
-ecrireDgram(int sock, struct sockaddr_in * src, char * buffer);
 
-lireSteam(int sock, char * buffer);
 
-ecrireStream(int sock, char * buffer);
+/** 
+ * @brief Lecture d'un message datagramme
+ * @param sock : descripteur de socket
+ * @param src : adresse du client
+ * @param buffer : buffer de réception
+ * @return : nombre d'octets lus
+*/
+int lireDgram(int sock, struct sockaddr_in * src, char * buffer){
+    int nbOctets;
+    CHECK(nbOctets = recvfrom(sock, buffer, sizeof(buffer), 0, (struct sockaddr *)src, sizeof(src)), "Pb-recvfrom");
+    return nbOctets;
+};
+
+/**
+ * @brief Ecriture d'un message datagramme
+ * 
+ * @param sock : descripteur de socket
+ * @param src : adresse du client
+ * @param buffer : buffer d'envoi
+ * @return int : nombre d'octets écrits
+ */
+int ecrireDgram(int sock, struct sockaddr_in * src, char * buffer){
+    int nbOctets;
+    CHECK(nbOctets = sendto(sock, buffer, sizeof(buffer), 0, (struct sockaddr *)src, sizeof(src)), "Pb-sendto");
+    return nbOctets;
+};
+
+/**
+ * @brief Lecture d'un message stream
+ * 
+ * @param sock : descripteur de socket
+ * @param buffer : buffer de réception
+ * @return int : nombre d'octets lus
+ */
+int lireStream(int sock, char * buffer){
+    int nbOctets;
+    CHECK(nbOctets = read(sock, buffer, sizeof(buffer)), "Pb-read");
+    return nbOctets;
+};
+
+/**
+ * @brief Ecriture d'un message stream
+ * 
+ * @param sock : descripteur de socket
+ * @param buffer : buffer d'envoi
+ * @return int : nombre d'octets écrits
+ */
+int ecrireStream(int sock, char * buffer){
+    int nbOctets;
+    CHECK(nbOctets = write(sock, buffer, sizeof(buffer)), "Pb-write");
+    return nbOctets;
+    };
