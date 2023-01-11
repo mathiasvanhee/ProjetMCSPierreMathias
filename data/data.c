@@ -17,7 +17,7 @@ void creerProcessusServeur(int se, int sd, struct sockaddr_in clt)
     {   
         close(se);
         printf("Processus fils : %d pour gerer un nouveau client\n", getpid());
-        identificationServeur(sd);
+        dialogueSrv(sd);
         close(sd);
         exit(0);
     }
@@ -38,7 +38,7 @@ int lireDgram(int sock, struct sockaddr_in * src, char * buffer){
     int nbOctets;
     CHECK(nbOctets = recvfrom(sock, buffer, sizeof(buffer), 0, (struct sockaddr *)src, sizeof(src)), "Pb-recvfrom");
     return nbOctets;
-};
+}
 
 /**
  * @brief Ecriture d'un message datagramme
@@ -52,7 +52,7 @@ int ecrireDgram(int sock, struct sockaddr_in * src, char * buffer){
     int nbOctets;
     CHECK(nbOctets = sendto(sock, buffer, sizeof(buffer), 0, (struct sockaddr *)src, sizeof(src)), "Pb-sendto");
     return nbOctets;
-};
+}
 
 /**
  * @brief Lecture d'un message stream
@@ -64,8 +64,9 @@ int ecrireDgram(int sock, struct sockaddr_in * src, char * buffer){
 int lireStream(int sock, char * buffer){
     int nbOctets;
     CHECK(nbOctets = read(sock, buffer, sizeof(buffer)), "Pb-read");
+    printf("Message reçu [%s] de [%d]", buffer, sock);
     return nbOctets;
-};
+}
 
 /**
  * @brief Ecriture d'un message stream
@@ -78,4 +79,33 @@ int ecrireStream(int sock, char * buffer){
     int nbOctets;
     CHECK(nbOctets = write(sock, buffer, sizeof(buffer)), "Pb-write");
     return nbOctets;
-};
+}
+
+void dialogueSrv(int sd){
+    char buffer[1024];
+    int nbOctets;
+    PAUSE("PAUSE");
+    CHECK(lireStream(sd, buffer), "Pb-lireStream");        
+    printf("Message reçu : %s\n", buffer);
+    
+    ecrireStream(sd, "bonjour, que désirez vous ?");
+
+    CHECK(lireStream(sd, buffer), "Pb-lireStream");        
+    printf("Message reçu : %s\n", buffer);
+
+}
+
+void dialogueClt(int sd){
+    char buffer[1024];
+    int nbOctets;
+    PAUSE("PAUSE");
+    ecrireStream(sd, "Bonjour");
+
+    CHECK(lireStream(sd, buffer), "Pb-lireStream");
+
+    printf("Message reçu : %s\n", buffer);
+
+    sscanf("Message à envoyer : %s\n",buffer);
+    CHECK(ecrireStream(sd, buffer), "Pb write");
+    
+}
