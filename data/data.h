@@ -16,6 +16,8 @@
         exit(-1);       \
     }
 
+#define PAUSE(msg) printf("%s [touche]", msg); getchar();
+
 void traiterSIGCHLD(int sig);
 void creerProcessusServeur(int se, int sd, struct sockaddr_in clt);
 int lireDgram(int sock, struct sockaddr_in * src, char * buffer);

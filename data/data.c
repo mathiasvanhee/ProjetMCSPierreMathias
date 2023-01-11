@@ -84,6 +84,7 @@ int ecrireStream(int sock, char * buffer){
 void dialogueSrv(int sd){
     char buffer[1024];
     int nbOctets;
+    PAUSE("PAUSE");
     CHECK(lireStream(sd, buffer), "Pb-lireStream");        
     printf("Message reçu : %s\n", buffer);
     
@@ -97,7 +98,7 @@ void dialogueSrv(int sd){
 void dialogueClt(int sd){
     char buffer[1024];
     int nbOctets;
-
+    PAUSE("PAUSE");
     ecrireStream(sd, "Bonjour");
 
     CHECK(lireStream(sd, buffer), "Pb-lireStream");
