@@ -10,7 +10,7 @@ int creerSocket(int type){
     return sock;
 }
 
-int adresserSocket(int sock, char * IPaddr, short port){
+void adresserSocket(int sock, char * IPaddr, short port){
     struct sockaddr_in addr;
     addr.sin_family = PF_INET;
     inet_aton(IPaddr, &addr.sin_addr);
