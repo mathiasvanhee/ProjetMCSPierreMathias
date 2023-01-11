@@ -1,4 +1,3 @@
-
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -7,7 +6,8 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
-#include <errno.h>
+#include <signal.h>
+#include <sys/wait.h>
 
 #define CHECK(sts, msg) \
     if ((sts) == -1)    \
@@ -16,7 +16,7 @@
         exit(-1);       \
     }
 
-#define PAUSE(msg) printf("%s [touche]", msg); getchar();
+#define PAUSE(msg) printf("%s[touche]", msg);getchar();
 #define PORT_SVC 5000
 #define INADDR_SVC "127.0.0.1"
 #define MSG "100:Je dis que \"le fond de l’eau est clair par ici ! Où ça ?\""
@@ -27,10 +27,9 @@
 #define MAX_BUFF 1024
 char buffer[MAX_BUFF];
 
-int creerSocket(int type);
-void adresserSocket(int sock, char * IPaddr, short port);
-int creerSocketAddr(int type, char * IPaddr, short port);
-int creerSockAddrEcoute(char * IPaddr, short port, int maxfile);
-int attenteAppel(int sockEcoute, struct sockaddr_in * pClt);
-void connectSrv(int sock, char * IPaddr, short port);
-
+void traiterSIGCHLD(int sig);
+void creerProcessusServeur(int se, int sd, struct sockaddr_in clt);
+int lireDgram(int sock, struct sockaddr_in * src, char * buffer);
+int ecrireDgram(int sock, struct sockaddr_in * dest, char * buffer);
+int lireStream(int sock, char * buffer);
+int ecrireStream(int sock, char * buffer);
