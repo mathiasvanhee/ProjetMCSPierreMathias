@@ -9,7 +9,7 @@ void traiterSIGCHLD(int sig)
     }
 }
 
-void creerProcessusServeur(int se, int sd, struct sockaddr_in clt)
+void creerProcessusServeur(int se, int sd, struct sockaddr_in * clt)
 {
     int pid;
     CHECK(pid = fork(), "fork + Problème de création de processus !");
@@ -17,7 +17,7 @@ void creerProcessusServeur(int se, int sd, struct sockaddr_in clt)
     {   
         close(se);
         printf("Processus fils : %d pour gerer un nouveau client\n", getpid());
-        dialogueSrv(sd);
+        dialogueAvecClient(sd, clt);
         close(sd);
         exit(0);
     }
@@ -37,7 +37,7 @@ void creerProcessusServeur(int se, int sd, struct sockaddr_in clt)
 int lireDgram(int sock, struct sockaddr_in * src, char * buffer){
     int nbOctets;
     socklen_t srcLen = sizeof(*src);
-    CHECK(nbOctets = recvfrom(sock, buffer, sizeof(buffer), 0, (struct sockaddr *)src, &srcLen), "Pb-recvfrom");
+    CHECK(nbOctets = recvfrom(sock, buffer, strlen(buffer), 0, (struct sockaddr *)src, &srcLen), "Pb-recvfrom");
     
     
     return nbOctets;
@@ -53,7 +53,7 @@ int lireDgram(int sock, struct sockaddr_in * src, char * buffer){
  */
 int ecrireDgram(int sock, struct sockaddr_in * src, char * buffer){
     int nbOctets;
-    CHECK(nbOctets = sendto(sock, buffer, sizeof(buffer), 0, (struct sockaddr *)src, sizeof(src)), "Pb-sendto");
+    CHECK(nbOctets = sendto(sock, buffer, strlen(buffer) + 1, 0, (struct sockaddr *)src, sizeof(src)), "Pb-sendto");
     return nbOctets;
 }
 
@@ -66,8 +66,7 @@ int ecrireDgram(int sock, struct sockaddr_in * src, char * buffer){
  */
 int lireStream(int sock, char * buffer){
     int nbOctets;
-    CHECK(nbOctets = read(sock, buffer, sizeof(buffer)), "Pb-read");
-    printf("Message reçu [%s] de [%d]", buffer, sock);
+    CHECK(nbOctets = read(sock, buffer, strlen(buffer)), "Pb-read");
     return nbOctets;
 }
 
@@ -75,40 +74,35 @@ int lireStream(int sock, char * buffer){
  * @brief Ecriture d'un message stream
  * 
  * @param sock : descripteur de socket
- * @param buffer : buffer d'envoi
+ * @param buffer : buffer d'envoi comprenant le message à envoyé
  * @return int : nombre d'octets écrits
  */
 int ecrireStream(int sock, char * buffer){
     int nbOctets;
-    CHECK(nbOctets = write(sock, buffer, sizeof(buffer)), "Pb-write");
+    printf("Envoi d'une chaine. Longueur de la chaine : %ld\n", strlen(buffer));
+    CHECK(nbOctets = write(sock, buffer, strlen(buffer) + 1), "Pb-write");
     return nbOctets;
 }
 
-void dialogueSrv(int sd){
-    char buffer[1024];
+void dialogueAvecClient(int sd, struct sockaddr_in * clt){
+    char buffer[MAX_BUFF];
     int nbOctets;
     PAUSE("PAUSE");
-    CHECK(lireStream(sd, buffer), "Pb-lireStream");        
-    printf("Message reçu : %s\n", buffer);
-    
-    ecrireStream(sd, "bonjour, que désirez vous ?");
-
-    CHECK(lireStream(sd, buffer), "Pb-lireStream");        
-    printf("Message reçu : %s\n", buffer);
+    lireStream(sd, buffer);
+    printf("Message reçu de [%s:%d] : \"%s\"\n", inet_ntoa(clt->sin_addr), ntohs(clt->sin_port), buffer);   
+    ecrireStream(sd, "Bonjour, que désirez vous ?");    
+    printf("Message envoyé au client: \"%s\"\n", "Bonjour, que désirez vous ?");
 
 }
 
-void dialogueClt(int sd){
-    char buffer[1024];
+void dialogueAvecServeur(int sd){
+    char buffer[MAX_BUFF];
     int nbOctets;
     PAUSE("PAUSE");
-    ecrireStream(sd, "Bonjour");
+    ecrireStream(sd, "CECI EST UN TRES TRES TRES TRES LONG MESSAGE");
+    lireStream(sd, buffer);
 
-    CHECK(lireStream(sd, buffer), "Pb-lireStream");
+    printf("Réponse reçue du serveur : \"%s\"\n", buffer);
 
-    printf("Message reçu : %s\n", buffer);
-
-    sscanf("Message à envoyer : %s\n",buffer);
-    CHECK(ecrireStream(sd, buffer), "Pb write");
     
 }

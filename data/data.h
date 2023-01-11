@@ -22,11 +22,13 @@
 #define PAUSE(msg) printf("%s [touche]", msg); getchar();
 #endif
 
+#define MAX_BUFF 1024
+
 void traiterSIGCHLD(int sig);
-void creerProcessusServeur(int se, int sd, struct sockaddr_in clt);
+void creerProcessusServeur(int se, int sd, struct sockaddr_in * clt);
 int lireDgram(int sock, struct sockaddr_in * src, char * buffer);
 int ecrireDgram(int sock, struct sockaddr_in * dest, char * buffer);
 int lireStream(int sock, char * buffer);
 int ecrireStream(int sock, char * buffer);
-void dialogueSrv(int sd);
-void dialogueClt(int sd);
+void dialogueAvecClient(int sd, struct sockaddr_in * clt);
+void dialogueAvecServeur(int sd);
