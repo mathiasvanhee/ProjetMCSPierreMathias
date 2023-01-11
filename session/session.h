@@ -9,23 +9,19 @@
 #include <arpa/inet.h>
 #include <errno.h>
 
+#ifndef CHECK
 #define CHECK(sts, msg) \
     if ((sts) == -1)    \
     {                   \
         perror(msg);    \
         exit(-1);       \
     }
+#endif
 
+#ifndef PAUSE
 #define PAUSE(msg) printf("%s [touche]", msg); getchar();
-#define PORT_SVC 5000
-#define INADDR_SVC "127.0.0.1"
-#define MSG "100:Je dis que \"le fond de l’eau est clair par ici ! Où ça ?\""
-#define BYE "000:Au revoir et à bientôt ..."
-#define ERR "200:Requête ou réponse non reconnue !"
-#define OK "OK"
-#define NOK "Not OK"
-#define MAX_BUFF 1024
-char buffer[MAX_BUFF];
+#endif
+
 
 int creerSocket(int type);
 void adresserSocket(int sock, char * IPaddr, short port);

@@ -9,14 +9,18 @@
 #include <signal.h>
 #include <sys/wait.h>
 
+#ifndef CHECK
 #define CHECK(sts, msg) \
     if ((sts) == -1)    \
     {                   \
         perror(msg);    \
         exit(-1);       \
     }
+#endif
 
+#ifndef PAUSE
 #define PAUSE(msg) printf("%s [touche]", msg); getchar();
+#endif
 
 void traiterSIGCHLD(int sig);
 void creerProcessusServeur(int se, int sd, struct sockaddr_in clt);

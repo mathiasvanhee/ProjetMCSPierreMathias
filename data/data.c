@@ -36,7 +36,10 @@ void creerProcessusServeur(int se, int sd, struct sockaddr_in clt)
 */
 int lireDgram(int sock, struct sockaddr_in * src, char * buffer){
     int nbOctets;
-    CHECK(nbOctets = recvfrom(sock, buffer, sizeof(buffer), 0, (struct sockaddr *)src, sizeof(src)), "Pb-recvfrom");
+    socklen_t srcLen = sizeof(*src);
+    CHECK(nbOctets = recvfrom(sock, buffer, sizeof(buffer), 0, (struct sockaddr *)src, &srcLen), "Pb-recvfrom");
+    
+    
     return nbOctets;
 }
 
