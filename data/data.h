@@ -1,3 +1,6 @@
+#ifndef DATA_H
+#define DATA_H
+
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -25,10 +28,9 @@
 #define MAX_BUFF 1024
 
 void traiterSIGCHLD(int sig);
-void creerProcessusServeur(int se, int sd, struct sockaddr_in * clt);
 int lireDgram(int sock, struct sockaddr_in * src, char * buffer);
 int ecrireDgram(int sock, struct sockaddr_in * dest, char * buffer);
 int lireStream(int sock, char * buffer);
 int ecrireStream(int sock, char * buffer);
-void dialogueAvecClient(int sd, struct sockaddr_in * clt);
-void dialogueAvecServeur(int sd);
+
+#endif
