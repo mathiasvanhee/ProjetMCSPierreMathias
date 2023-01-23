@@ -27,10 +27,14 @@
 
 #define MAX_BUFF 1024
 
+typedef void (fct_Serial)(void*,void *);
+
 void traiterSIGCHLD(int sig);
 int lireDgram(int sock, struct sockaddr_in * src, char * buffer);
 int ecrireDgram(int sock, struct sockaddr_in * dest, char * buffer);
 int lireStream(int sock, char * buffer);
 int ecrireStream(int sock, char * buffer);
+void envoyerReqStream(int sock, void *req, fct_Serial * reqToSerial);
+void envoyerReqDgram(int sock, void *req, fct_Serial * reqToSerial, struct sockaddr_in *src);
 
 #endif

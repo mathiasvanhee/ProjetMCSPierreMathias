@@ -65,8 +65,18 @@ int ecrireStream(int sock, char *buffer)
 {
     int nbOctets;
     size_t nbCar = strlen(buffer) + 1;
-    printf("Envoi d'une chaine. Longueur de la chaine (avec \\0) : %ld\n", nbCar);
     CHECK(nbOctets = write(sock, buffer, nbCar), "Pb-write");
     return nbOctets;
 }
 
+void envoyerReqStream(int sock, void *req, fct_Serial * reqToSerial){
+    char buffer[1024];
+    (*reqToSerial)(req,buffer);
+    ecrireStream(sock, buffer);
+}
+
+void envoyerReqDgram(int sock, void *req, fct_Serial * reqToSerial, struct sockaddr_in *src){
+    char buffer[1024];
+    (*reqToSerial)(req,buffer);
+    ecrireDgram(sock, src, buffer);
+}
