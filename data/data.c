@@ -80,3 +80,15 @@ void envoyerReqDgram(int sock, void *req, fct_Serial * reqToSerial, struct socka
     (*reqToSerial)(req,buffer);
     ecrireDgram(sock, src, buffer);
 }
+
+void lireRepStream(int sock, void *req, fct_Serial * serialToRep){
+    char buffer[1024];
+    lireStream(sock, buffer);
+    (*serialToRep)(req,buffer);
+}
+
+void lireRepDgram(int sock, void *req, fct_Serial * serialToRep, struct sockaddr_in *src){
+    char buffer[1024];
+    lireDgram(sock, src, buffer);
+    (*serialToRep)(req,buffer);
+}

@@ -1,7 +1,7 @@
 c=gcc
 op=-Wall -Wextra
 
-LIBS=data/data session/session
+LIBS=data/data session/session protocole/protocole
 LIBS_HEADERS=$(patsubst %,%.h,$(LIBS))
 LIBS_CODE=$(patsubst %,%.c,$(LIBS))
 LIBS_OBJ=$(patsubst %,%.o,$(LIBS))
