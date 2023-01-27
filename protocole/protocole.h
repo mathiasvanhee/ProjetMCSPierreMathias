@@ -1,3 +1,5 @@
+#include "../data/data.h"
+
 typedef struct infosDiffusion{
     char addrIP[20];
     int port;
@@ -22,12 +24,11 @@ typedef enum{
 
 typedef struct{
     int idReq;
-    //----- verbe; // ????
     union{
         listeInfos_t reqListeInfos; //idReq = 1; à malloc
         infosDiffusion_t reqInfosDiffusion;//idReq = 2
-        demandeRetirerListe_t reqRetirerListe;
-    };
+        demandeRetirerListe_t reqRetirerListe;//idReq = 3
+    } r;
 } req_t;
 
 void str_to_rep(char *, req_t *);
