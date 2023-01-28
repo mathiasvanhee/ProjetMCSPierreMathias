@@ -5,7 +5,7 @@ LIBS=data/data session/session protocole/protocole
 LIBS_HEADERS=$(patsubst %,%.h,$(LIBS))
 LIBS_CODE=$(patsubst %,%.c,$(LIBS))
 LIBS_OBJ=$(patsubst %,%.o,$(LIBS))
-L=-lpthread
+L=-lpthread -lncurses
 
 MAIN=application/client application/serveurPrincipal
 DEBUG=$(patsubst %,%_debug.exe,$(MAIN))

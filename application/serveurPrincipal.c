@@ -1,9 +1,4 @@
-#include "../session/session.h"
-#include "../data/data.h"
-#include "../protocole/protocole.h"
-
-void creerProcessusServeur(int se, int sd, struct sockaddr_in *clt);
-void dialogueAvecClient(int sd, struct sockaddr_in *clt);
+#include "application.h"
 
 int main(int argc, char const *argv[])
 {
