@@ -1,5 +1,6 @@
 #include "application.h"
 int diffusionEnCours = 0;
+int se;
 
 int main(int argc, char const *argv[])
 {
@@ -13,80 +14,17 @@ int main(int argc, char const *argv[])
 void dialogueAvecServeur(int sd)
 {
     PAUSE("PAUSE");
-    Menu();
-    // serveurClient();
+    while (Menu() != 0)
+        ;
 }
 
 /**
- * @brief création d'un serveur d'écoute pour la diffuion
+ * @brief Menu de l'application
  *
  */
-void serveurClient()
+int Menu()
 {
-    int se;
-    char IP[16];
-    char desc[MAX_BUFF];
-    int port;
-
-    pthread_t tid;
-
-    printf("Veuillez entrer l'adresse IP du serveur : \n");
-    scanf("%s", IP);
-    printf("Veuillez entrer le port d'écoute du serveur : \n");
-    scanf("%d", &port);
-    printf("Veuillez entrer une description sur la diffusion :\n");
-    viderBuffer();
-    fgets(desc, sizeof(desc), stdin); // fgets permet de récupérer les espaces
-
-    printf("%s\n", IP);
-    printf("%d\n", port);
-    printf("%s\n", desc);
-
-    // demarrerVideo(); //lance la capture vidéo
-
-    se = creerSockAddrEcoute(IP, port, 5);
-    diffusionEnCours = 1;
-    printf("passage\n");
-    pthread_create(&tid, NULL, (pf_t)threadEcoute, &se);
-    while (diffusionEnCours)
-        ;
-
-    // arreterVideo();
-    close(se);
-}
-
-void *threadEcoute(int *se)
-{
-
-    /* printf("hello xterm\nappuyer sur enter");
-    getchar();
-    exit(0);
-    system("xterm"); */
-
-    int nbThread = 0;
-    struct sockaddr_in clt;
-    int sd;
-    pthread_t tids[NBMAX_THREADS];
-
-    while (diffusionEnCours)
-    {
-        sd = attenteAppel(*se, &clt);
-        pthread_create(&tids[nbThread++], NULL, (pf_t)diffusion, &sd);
-    }
-
-    for (int i = 0; i < nbThread; i++)
-        pthread_join(tids[i], NULL);
-
-    pthread_exit(NULL);
-}
-
-void *diffusion()
-{
-    pthread_exit(NULL);
-}
-
-void Menu()
-{
+    printf("entrer menu");
     initscr();
     noecho();
     cbreak();
@@ -97,13 +35,21 @@ void Menu()
 
     WINDOW *menu = newwin(10, 40, yMax / 2, xMax / 2);
     // box(menu, 0, 0);
+    printw("Dans menu");
+
     refresh();
     wrefresh(menu);
 
     // autorise les fleches du clavier
     keypad(menu, TRUE);
 
-    char *choix[3] = {"Voir la liste des diffusions", "Lancer une diffusion", "Quitter"};
+    char choix[3][30] = {"Voir la liste des diffusions", "Lancer une diffusion", "Quitter"};
+
+    if (diffusionEnCours == 1)
+    {
+        strcpy(choix[1], "Arreter la diffusion");
+    }
+
     int action;
     int selection = 0;
 
@@ -138,81 +84,109 @@ void Menu()
             switch (selection)
             {
             case 0:
-                // afficherListeDiffusion();
+                afficherListeDiffusion();
                 break;
             case 1:
-                // serveurClient();
+                if (diffusionEnCours == 1)
+                {
+                    diffusionEnCours = 0;
+                    strcpy(choix[1], "Lancer une diffusion");
+                }
+                else
+                {
+                    endwin();
+                    serveurClient();
+                    return 1;
+                }
                 break;
+
             case 2:
                 endwin();
-                exit(0);
+                return 0;
                 break;
             default:
                 break;
             }
         }
     }
-    // fermeture du menu
+}
 
-    /*WINDOW *w;
-    char list[2][28] = {"Voir la liste des diffusions", "Lancer une diffusion"};
-    char item[28];
-    int ch, i = 0;
+void afficherListeDiffusion()
+{
+}
 
-    int termwidth = getmaxy(stdscr);
-    int termheight = getmaxx(stdscr);
+/**
+ * @brief création d'un serveur d'écoute pour la diffuion
+ *
+ */
+void serveurClient()
+{
 
-    initscr();                // initialize Ncurses
-    w = newwin(10, 40, termheight/2, termwidth/2); // create a new window
-    //box(w, 0, 0);             // sets default borders for the window
-    // now print all the menu items and highlight the first one
+    char IP[16];
+    char desc[MAX_BUFF];
+    int port;
 
-    for (i = 0; i < 5; i++)
+    pthread_t tid;
+
+    printf("Veuillez entrer l'adresse IP du serveur : \n");
+    scanf("%s", IP);
+    printf("Veuillez entrer le port d'écoute du serveur : \n");
+    scanf("%d", &port);
+    printf("Veuillez entrer une description sur la diffusion :\n");
+    viderBuffer();
+    fgets(desc, sizeof(desc), stdin); // fgets permet de récupérer les espaces
+
+    printf("%s\n", IP);
+    printf("%d\n", port);
+    printf("%s\n", desc);
+
+    // demarrerVideo(); //lance la capture vidéo
+
+    se = creerSockAddrEcoute(IP, port, 5);
+    printf("se = %d\n", se);
+    diffusionEnCours = 1;
+    pthread_create(&tid, NULL, (pf_t)threadEcoute, &se);
+}
+
+/**
+ * @brief Thread d'écoute pour la diffusion
+ *
+ * @param se
+ * @return void*
+ */
+void *threadEcoute(int *se)
+{
+    pthread_t tid;
+
+    pthread_create(&tid, NULL, (pf_t)connectThread, NULL);
+    while (diffusionEnCours)
+    ;
+
+    pthread_cancel(tid);
+    // arreterVideo(); //arrete la capture vidéo
+    printf("Fin de la diffusion\n");
+    close(*se);
+    pthread_exit(NULL);
+}
+
+void *connectThread()
+{
+    int sd;
+    int nbThread = 0;
+    struct sockaddr_in clt;
+    pthread_t tids[NBMAX_THREADS];
+    while (diffusionEnCours)
     {
-        if (i == 0)
-            wattron(w, A_STANDOUT); // highlights the first item.
-        else
-            wattroff(w, A_STANDOUT);
-        sprintf(item, "%s", list[i]);
-        mvwprintw(w, i + 1, 2, "%s", item);
+        sd = attenteAppel(se, &clt);
+        pthread_create(&tids[nbThread++], NULL, (pf_t)diffusion, &sd);
     }
-    wrefresh(w); // update the terminal screen
-    i = 0;
-    noecho();        // disable echoing of characters on the screen
-    keypad(w, TRUE); // enable keyboard input for the window.
-    curs_set(0);     // hide the default screen cursor.
-    init_pair(1, COLOR_MAGENTA, COLOR_RED);
-    // get the input
-    while ((ch = wgetch(w)) != 'q')
-    {
-        // right pad with spaces to make the items appear with even width.
+    pthread_exit(NULL);
+}
 
-        sprintf(item, "%s", list[i]);
-        mvwprintw(w, i + 1, 2, "%s", item);
+void *diffusion()
+{
 
-        // use a variable to increment or decrement the value based on the input.
-        switch (ch)
-        {
-        case KEY_UP:
-            i--;
-            i = (i < 0) ? 4 : i;
-            addstr("up");
-            break;
-        case KEY_DOWN:
-            i++;
-            i = (i > 4) ? 0 : i;
-            break;
-            addstr("down");
-            refresh();
-        }
-        // now highlight the next item in the list.
-        wattron(w, A_STANDOUT);
-        sprintf(item, "%s", list[i]);
-        mvwprintw(w, i + 1, 2, "%s", item);
-        wattroff(w, A_STANDOUT);
-    }
-    delwin(w);
-    endwin();*/
+    pthread_exit(NULL);
 }
 
 void viderBuffer()

@@ -9,10 +9,12 @@ typedef void * (*pf_t)(void *);
 
 //dans client.c
 void dialogueAvecServeur(int sd);
+int Menu();
+void afficherListeDiffusion();
 void serveurClient();
 void* threadEcoute(int* se);
+void *connectThread();
 void* diffusion();
-void Menu();
 void viderBuffer();
 
 //dans serveurPrincipal.c

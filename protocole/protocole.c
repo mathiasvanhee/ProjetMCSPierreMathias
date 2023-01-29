@@ -37,6 +37,10 @@ void str_to_rep(char * serial, req_t * rep){
         rep->r.reqRetirerListe = atoi(strtok(NULL, ":"));
     break;
 
+    case 4:
+
+    break;
+
     default:
         break;
     }

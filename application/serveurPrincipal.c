@@ -1,5 +1,7 @@
 #include "application.h"
 
+infosDiffusion_t listeDesDiffusions[];
+
 int main(int argc, char const *argv[])
 {
     struct sockaddr_in clt;

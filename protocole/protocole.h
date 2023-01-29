@@ -1,9 +1,10 @@
 #include "../data/data.h"
 
 typedef struct infosDiffusion{
-    char addrIP[20];
+    long id;
+    char addrIP[16];
     int port;
-    char description[50];
+    char description[MAX_BUFF];
 } infosDiffusion_t;
 
 typedef struct infoListe{
@@ -16,11 +17,13 @@ typedef struct listInfos{
     infoListe_t * tabInfos;
 }listeInfos_t;
 
+typedef struct demandeListe{
+}demandeListe_t;
+
 typedef enum{
     DEFAULT,
     ERROR
 } demandeRetirerListe_t;
-
 
 typedef struct{
     int idReq;
@@ -28,6 +31,7 @@ typedef struct{
         listeInfos_t reqListeInfos; //idReq = 1; à malloc
         infosDiffusion_t reqInfosDiffusion;//idReq = 2
         demandeRetirerListe_t reqRetirerListe;//idReq = 3
+        demandeListe_t  reqDemandeListe;//idReq = 4
     } r;
 } req_t;
 
