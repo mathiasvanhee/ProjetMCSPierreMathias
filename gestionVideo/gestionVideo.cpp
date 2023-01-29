@@ -34,7 +34,7 @@ extern "C" void *diffusion(void *ptr){
 
     //TODO : appeler un thread qui attend qu'on demande une fin de diffusion
     //ce thread prend en argument l'adresse de la variable clientStopped, qui se met à 0 lorsqu'il arrête de regarder la diffusion.
-    
+
     while(cap.isOpened() && !clientStopped) {
                 
     /* get a frame from camera */
@@ -67,4 +67,40 @@ extern "C" int demarrerVideo(){
 
 extern "C" int arreterVideo(){
     cap.release();
+}
+
+extern "C" void *regarderDiffusion(void *ptr){
+    int socket = *(int *)ptr;
+
+    Mat img;
+    img = Mat::zeros(480 , 640, CV_8UC1);    
+    int imgSize = img.total() * img.elemSize();
+    uchar *iptr = img.data;
+    int bytes = 0;
+    int key;
+
+    //make img continuos
+    if ( ! img.isContinuous() ) { 
+          img = img.clone();
+    }
+
+    std::cout << "Image Size:" << imgSize << std::endl;
+
+
+    namedWindow("Video stream",1);
+
+    while (key != 'q') {
+
+        if ((bytes = recv(socket, iptr, imgSize , MSG_WAITALL)) == -1) {
+            std::cerr << "recv failed, received bytes = " << bytes << std::endl;
+        }
+        
+        cv::imshow("CV Video Client", img); 
+      
+        if (key = cv::waitKey(10) >= 0) break;
+    }   
+
+    close(socket);
+
+    return 0;
 }

@@ -36,3 +36,10 @@ extern "C" int demarrerVideo();
  */
 extern "C" int arreterVideo();
 
+/**
+ * \brief       Affiche une diffusion d'un serveur
+ * \param ptr   Adresse de la socket de dialogue avec le serveur.
+ * \note        A utiliser en tant que thread.
+ * \warning     La socket doit être bien initialisée
+ */
+extern "C" void *regarderDiffusion(void *ptr);
