@@ -20,7 +20,7 @@ int main(int argc, char const *argv[])
 
 void creerProcessusServeur(int se, int sd, struct sockaddr_in *clt)
 {
-    int pid;
+    /*int pid;
     CHECK(pid = fork(), "fork + Problème de création de processus !");
     if (pid == 0)
     {
@@ -33,13 +33,40 @@ void creerProcessusServeur(int se, int sd, struct sockaddr_in *clt)
     printf("HERE");
     close(sd);
     traiterSIGCHLD(SIGCHLD);
+    */
 }
-
 
 void dialogueAvecClient(int sd, struct sockaddr_in *clt)
 {
-    while(1){
+    req_t reqClient;
+    req_t repServ;
+    while (1)
+    {
+        lireRepStream(sd, &reqClient, str_to_rep);
+        switch (reqClient.idReq)
+        {
+        case LISTE_INFOS:
 
+            break;
+
+        case INFOS_DIFFUSION:
+
+            break;
+
+        case DEMANDE_RETIRER_LISTE:
+
+            break;
+
+        case DEMANDE_LISTE:
+            // Il n'y a que l'id de la requête, aucune information n'est demandée
+            break;
+
+        case DEMANDE_AJOUTER_LISTE:
+
+            break;
+
+        default:
+            break;
+        }
     }
 }
-

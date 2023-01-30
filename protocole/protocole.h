@@ -1,15 +1,17 @@
 #include "../data/data.h"
 
+#define MAX_DESC 60
+
 typedef struct infosDiffusion{
     long id;
     char addrIP[16];
     int port;
-    char description[MAX_BUFF];
+    char description[MAX_DESC];
 } infosDiffusion_t;
 
 typedef struct infoListe{
     long id;
-    char description[50];
+    char description[MAX_DESC];
 } infoListe_t;
 
 typedef struct listInfos{
@@ -20,10 +22,27 @@ typedef struct listInfos{
 typedef struct demandeListe{
 }demandeListe_t;
 
-typedef enum{
+typedef enum demandeRetirerListe{
     DEFAULT,
     ERROR
 } demandeRetirerListe_t;
+
+//pour la demande de nouvelle diffusion, on a juste besoin du port et de la description,
+// l'adresse du diffuseur est determinée par le serveur central, et son id est aussi choisie par le serveur central.
+typedef struct demandeAjouterListe{
+    int port;
+    char description[MAX_DESC];
+} demandeAjouterListe_t;
+
+
+typedef enum idReq{
+    UNDEFINED,
+    LISTE_INFOS,            //Réponse du serveur principal à la demande de la liste des diffusions ouvertes       
+    INFOS_DIFFUSION,        //Réponse du serveur principal à la demande des informations de connexion à une diffusion
+    DEMANDE_RETIRER_LISTE,  //Demande d'arrêt d'une diffusion d'un client
+    DEMANDE_LISTE,          //Demande de la liste des diffusions ouvertes
+    DEMANDE_AJOUTER_LISTE  //Demande de nouvelle diffusion
+} idReq_t;
 
 typedef struct{
     int idReq;
@@ -32,8 +51,10 @@ typedef struct{
         infosDiffusion_t reqInfosDiffusion;//idReq = 2
         demandeRetirerListe_t reqRetirerListe;//idReq = 3
         demandeListe_t  reqDemandeListe;//idReq = 4
+        demandeAjouterListe_t  reqAjouterListe;//idReq = 5
     } r;
 } req_t;
 
 void str_to_rep(char *, req_t *);
 void req_to_str(req_t *, char *);
+void initReqAjouterListe(req_t * req, int port, char * description);

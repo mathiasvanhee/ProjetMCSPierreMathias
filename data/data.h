@@ -36,7 +36,7 @@ int lireStream(int sock, char * buffer);
 int ecrireStream(int sock, char * buffer);
 void envoyerReqStream(int sock, void *req, fct_Serial * reqToSerial);
 void envoyerReqDgram(int sock, void *req, fct_Serial * reqToSerial, struct sockaddr_in *src);
-void lireRepStream(int sock, void *req, fct_Serial * reqToSerial);
-void lireRepDgram(int sock, void *req, fct_Serial * reqToSerial, struct sockaddr_in *src);
+void lireRepStream(int sock, void *req, fct_Serial * serialToRep);
+void lireRepDgram(int sock, void *req, fct_Serial * serialToRep, struct sockaddr_in *src);
 
 #endif

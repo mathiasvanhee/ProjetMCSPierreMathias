@@ -1,13 +1,14 @@
 #include "application.h"
 int diffusionEnCours = 0;
 int se;
+int sockDialogueServPrincipal;
 
 int main(int argc, char const *argv[])
 {
-    int sock = creerSocket(SOCK_STREAM);
-    connectSrv(sock, "127.0.0.1", 5250);
-    dialogueAvecServeur(sock);
-    close(sock);
+    sockDialogueServPrincipal = creerSocket(SOCK_STREAM);
+    connectSrv(sockDialogueServPrincipal, "127.0.0.1", 5250);
+    dialogueAvecServeur(sockDialogueServPrincipal);
+    close(sockDialogueServPrincipal);
     return 0;
 }
 
@@ -123,27 +124,32 @@ void serveurClient()
 {
 
     char IP[16];
-    char desc[MAX_BUFF];
+    char desc[MAX_DESC];
     int port;
 
     pthread_t tid;
 
-    printf("Veuillez entrer l'adresse IP du serveur : \n");
-    scanf("%s", IP);
+    /*printf("Veuillez entrer l'adresse IP du serveur : \n");
+    scanf("%s", IP);*/
     printf("Veuillez entrer le port d'écoute du serveur : \n");
     scanf("%d", &port);
     printf("Veuillez entrer une description sur la diffusion :\n");
     viderBuffer();
     fgets(desc, sizeof(desc), stdin); // fgets permet de récupérer les espaces
 
-    printf("%s\n", IP);
+    /*printf("%s\n", IP);*/
     printf("%d\n", port);
     printf("%s\n", desc);
 
     // demarrerVideo(); //lance la capture vidéo
+    //On envoie requête au serveur principal, afin de l'informer de la création d'une diffusion.
+    req_t demandeAjouterListe;
+    initReqAjouterListe(&demandeAjouterListe, port, desc);
+    envoyerReqStream(sockDialogueServPrincipal, &demandeAjouterListe, req_to_str);
 
     se = creerSockAddrEcoute(IP, port, 5);
     printf("se = %d\n", se);
+    
     diffusionEnCours = 1;
     pthread_create(&tid, NULL, (pf_t)threadEcoute, &se);
 }
@@ -158,6 +164,7 @@ void *threadEcoute(int *se)
 {
     pthread_t tid;
 
+    
     pthread_create(&tid, NULL, (pf_t)connectThread, NULL);
     while (diffusionEnCours)
     ;
@@ -165,6 +172,7 @@ void *threadEcoute(int *se)
     pthread_cancel(tid);
     // arreterVideo(); //arrete la capture vidéo
     printf("Fin de la diffusion\n");
+    //TODO : envoyer requête au serveur principal, afin de l'informer de la fermeture de la diffusion.
     close(*se);
     pthread_exit(NULL);
 }
