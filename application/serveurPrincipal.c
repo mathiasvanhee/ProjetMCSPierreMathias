@@ -9,7 +9,8 @@ int main(int argc, char const *argv[])
     //struct sockaddr_in clt;
     infoConnexion_t infoConnexion;
     int se, nbThread = 0;
-    pthread_t tids[NBMAX_THREADS];
+    //pthread_t tids[NBMAX_THREADS];
+    pthread_t tid;
     initListeDiffusions(&listeDiffusions);
     
     CHECK(sem_init(&mutexConnexion, 0, 0), "init mutexConnexion");
@@ -20,7 +21,8 @@ int main(int argc, char const *argv[])
     
     while(1){
         infoConnexion.sd = attenteAppel(se, &infoConnexion.addrClt);
-        pthread_create(&tids[nbThread++], NULL, (pf_t)&dialogueAvecClient, &infoConnexion);
+        //pthread_create(&tids[nbThread++], NULL, (pf_t)&dialogueAvecClient, &infoConnexion);
+        pthread_create(tid, NULL, (pf_t)&dialogueAvecClient, &infoConnexion);
         sem_wait(&mutexConnexion);
     }
 
