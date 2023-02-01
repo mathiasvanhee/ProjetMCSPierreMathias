@@ -21,7 +21,7 @@ int lireDgram(int sock, struct sockaddr_in *src, char *buffer)
     int nbOctets;
     socklen_t srcLen = sizeof(*src);
     CHECK(nbOctets = recvfrom(sock, buffer, MAX_BUFF, 0, (struct sockaddr *)src, &srcLen), "Pb-recvfrom");
-
+    if(nbOctets == 0) buffer[0] = 0;
     return nbOctets;
 }
 
@@ -51,6 +51,7 @@ int lireStream(int sock, char *buffer)
 {
     int nbOctets;
     CHECK(nbOctets = read(sock, buffer, MAX_BUFF), "Pb-read");
+    if(nbOctets == 0) buffer[0] = 0;
     return nbOctets;
 }
 
@@ -84,11 +85,11 @@ void envoyerReqDgram(int sock, void *req, fct_Serial * reqToSerial, struct socka
 void lireRepStream(int sock, void *req, fct_Serial * serialToRep){
     char buffer[1024];
     lireStream(sock, buffer);
-    (*serialToRep)(req,buffer);
+    (*serialToRep)(buffer, req);
 }
 
 void lireRepDgram(int sock, void *req, fct_Serial * serialToRep, struct sockaddr_in *src){
     char buffer[1024];
     lireDgram(sock, src, buffer);
-    (*serialToRep)(req,buffer);
+    (*serialToRep)(buffer, req);
 }

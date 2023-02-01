@@ -24,7 +24,7 @@
 
 
 int creerSocket(int type);
-void adresserSocket(int sock, char * IPaddr, short port);
+int adresserSocket(int sock, char * IPaddr, short port);
 int creerSocketAddr(int type, char * IPaddr, short port);
 int creerSockAddrEcoute(char * IPaddr, short port, int maxfile);
 int attenteAppel(int sockEcoute, struct sockaddr_in * pClt);

@@ -140,14 +140,22 @@ void serveurClient()
     /*printf("%s\n", IP);*/
     printf("%d\n", port);
     printf("%s\n", desc);
+    
+    se = creerSockAddrEcoute("0.0.0.0", port, 5);
+
+    if(se == -1){
+        //le bind n'a pas marché : 
+        fprintf(stderr, "le port %d est indisponible", port);
+        PAUSE("");
+        return ;
+    }
 
     // demarrerVideo(); //lance la capture vidéo
     //On envoie requête au serveur principal, afin de l'informer de la création d'une diffusion.
     req_t demandeAjouterListe;
     initReqAjouterListe(&demandeAjouterListe, port, desc);
-    envoyerReqStream(sockDialogueServPrincipal, &demandeAjouterListe, req_to_str);
+    envoyerReqStream(sockDialogueServPrincipal, &demandeAjouterListe, (fct_Serial *) &req_to_str);
 
-    se = creerSockAddrEcoute(IP, port, 5);
     printf("se = %d\n", se);
     
     diffusionEnCours = 1;

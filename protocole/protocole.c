@@ -5,6 +5,11 @@ void str_to_rep(char * serial, req_t * rep){
     int i;
 
     token = strtok(serial, ":");
+    if(token == NULL){
+        //rien n'est envoyé = fin du client
+        rep->idReq = SOCKET_CLOSED;
+        return;
+    }
     rep->idReq = atoi(token);
     
 
@@ -36,8 +41,13 @@ void str_to_rep(char * serial, req_t * rep){
     break;
 
     case INFOS_DIFFUSION:
-        strcpy(rep->r.reqInfosDiffusion.addrIP, strtok(NULL, ":"));
-        rep->r.reqInfosDiffusion.port = atoi(strtok(NULL, ":"));
+        token = strtok(serial, ":");
+        strcpy(rep->r.reqInfosDiffusion.addrIP, token);
+
+        token = strtok(serial, ":");
+        rep->r.reqInfosDiffusion.port = atoi(token);
+
+        token = strtok(serial, ":");
         strcpy(rep->r.reqInfosDiffusion.description, strtok(NULL, ":"));
     break;
 
@@ -50,8 +60,8 @@ void str_to_rep(char * serial, req_t * rep){
         break;
 
     case DEMANDE_AJOUTER_LISTE:
-        rep->r.reqInfosDiffusion.port = atoi(strtok(NULL, ":"));
-        strcpy(rep->r.reqInfosDiffusion.description, strtok(NULL, ":"));
+        rep->r.reqAjouterListe.port = atoi(strtok(NULL, ":"));
+        strcpy(rep->r.reqAjouterListe.description, strtok(NULL, ":"));
         break;
 
 
@@ -92,7 +102,7 @@ void req_to_str(req_t * req, char * serial){
         break;
 
     case DEMANDE_AJOUTER_LISTE:
-        sprintf(temp, ":%d:%s", req->r.reqInfosDiffusion.port, req->r.reqInfosDiffusion.description);
+        sprintf(temp, ":%d:%s", req->r.reqAjouterListe.port, req->r.reqAjouterListe.description);
         strcat(serial, temp);
         break;
 

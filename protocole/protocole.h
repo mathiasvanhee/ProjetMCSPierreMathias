@@ -41,11 +41,13 @@ typedef enum idReq{
     INFOS_DIFFUSION,        //Réponse du serveur principal à la demande des informations de connexion à une diffusion
     DEMANDE_RETIRER_LISTE,  //Demande d'arrêt d'une diffusion d'un client
     DEMANDE_LISTE,          //Demande de la liste des diffusions ouvertes
-    DEMANDE_AJOUTER_LISTE  //Demande de nouvelle diffusion
+    DEMANDE_AJOUTER_LISTE,  //Demande de nouvelle diffusion
+    SOCKET_CLOSED,          //La socket a été closed
+    BAD_REQUEST             //Un client a envoyé une requête erronée au serveur
 } idReq_t;
 
-typedef struct{
-    int idReq;
+typedef struct req{
+    idReq_t idReq;
     union{
         listeInfos_t reqListeInfos; //idReq = 1; à malloc
         infosDiffusion_t reqInfosDiffusion;//idReq = 2

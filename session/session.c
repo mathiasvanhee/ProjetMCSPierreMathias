@@ -10,25 +10,26 @@ int creerSocket(int type){
     return sock;
 }
 
-void adresserSocket(int sock, char * IPaddr, short port){
+int adresserSocket(int sock, char * IPaddr, short port){
     struct sockaddr_in addr;
     addr.sin_family = PF_INET;
     inet_aton(IPaddr, &addr.sin_addr);
     addr.sin_port = htons(port);
     memset(&addr.sin_zero, 0, 8);
-    CHECK(bind(sock, (struct sockaddr *) &addr, sizeof(addr)), "Pb bind");
+    return bind(sock, (struct sockaddr *) &addr, sizeof(addr));
 }
 
 int creerSocketAddr(int type, char * IPaddr, short port){
     int sock = creerSocket(type);
-    adresserSocket(sock, IPaddr, port);
+    if(adresserSocket(sock, IPaddr, port) == -1) return -1;
     return sock;
 }
 
 int creerSockAddrEcoute(char * IPaddr, short port, int maxfile)
 {
-    int sock = creerSocketAddr(SOCK_STREAM, IPaddr, port);
-    CHECK(listen(sock, maxfile), "Pb listen");
+    int sock;
+    if((sock = creerSocketAddr(SOCK_STREAM, IPaddr, port)) != -1)
+        CHECK(listen(sock, maxfile), "Pb listen");
     return sock;
 }
 
