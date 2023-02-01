@@ -51,25 +51,18 @@ void * dialogueAvecClient(infoConnexion_t * pInfoConnexion)
         lireRepStream(sd, &reqClient, (fct_Serial *) &str_to_rep);
         switch (reqClient.idReq)
         {
-        /*case LISTE_INFOS:
-
-            break;
-
-        case INFOS_DIFFUSION:
-
-            break;
-        */
         case DEMANDE_RETIRER_LISTE:
-
+            repServ.idReq = ERROR;//pas encore traitée
             break;
 
         case DEMANDE_LISTE:
             // Il n'y a que l'id de la requête, aucune information n'est demandée
+            repServ.idReq = ERROR;//pas encore traitée
             break;
 
         case DEMANDE_AJOUTER_LISTE:
-            
             insererListeDiffusions(&listeDiffusions, &reqClient.r.reqAjouterListe, addrIP);
+            repServ.idReq = SUCCESS;
             break;
 
         case SOCKET_CLOSED:
@@ -77,9 +70,16 @@ void * dialogueAvecClient(infoConnexion_t * pInfoConnexion)
             isSockClosed = 1;
             close(sd);
             break;
+        case BAD_REQUEST :
+            repServ.idReq = BAD_REQUEST;
+            break;
         default:
+            repServ.idReq = BAD_REQUEST;
             break;
         }
+
+        if(!isSockClosed)
+            envoyerReqStream(sd, &repServ, (fct_Serial *) &req_to_str);
     }
     return NULL;
 }

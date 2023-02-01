@@ -152,9 +152,16 @@ void serveurClient()
 
     // demarrerVideo(); //lance la capture vidéo
     //On envoie requête au serveur principal, afin de l'informer de la création d'une diffusion.
-    req_t demandeAjouterListe;
+    req_t demandeAjouterListe, repServeur;
     initReqAjouterListe(&demandeAjouterListe, port, desc);
     envoyerReqStream(sockDialogueServPrincipal, &demandeAjouterListe, (fct_Serial *) &req_to_str);
+    lireRepStream(sockDialogueServPrincipal, &repServeur, (fct_Serial *) &str_to_rep);
+    if(repServeur.idReq != SUCCESS){
+        close(se);
+        fprintf(stderr, "Le serveur central n'a pas accepté la diffusion.");
+        PAUSE("");
+        return;
+    }
 
     printf("se = %d\n", se);
     

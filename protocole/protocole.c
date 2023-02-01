@@ -11,63 +11,102 @@ void str_to_rep(char * serial, req_t * rep){
         return;
     }
     rep->idReq = atoi(token);
-    
 
     switch (rep->idReq)
     {
     case LISTE_INFOS:
         rep->r.reqListeInfos.taille = 10;
         rep->r.reqListeInfos.tabInfos = malloc(rep->r.reqListeInfos.taille * sizeof(infoListe_t));
-        //On realloc dès qu'on ajoute un élément car la taille est variable (inconnue au départ) (ici par bloc de 10)
-        for(i = 0;;i++){
-            if(i>=rep->r.reqListeInfos.taille){
-                rep->r.reqListeInfos.taille+=10;
+        // On realloc dès qu'on ajoute un élément car la taille est variable (inconnue au départ) (ici par bloc de 10)
+        for (i = 0;; i++)
+        {
+            if (i >= rep->r.reqListeInfos.taille)
+            {
+                rep->r.reqListeInfos.taille += 10;
                 rep->r.reqListeInfos.tabInfos = realloc(rep->r.reqListeInfos.tabInfos, rep->r.reqListeInfos.taille * sizeof(infoListe_t));
             }
-            token=strtok(NULL, ":");
-            if(token == NULL){
-                    break;
+            token = strtok(NULL, ":");
+            if (token == NULL)
+            {
+                break;
             }
             rep->r.reqListeInfos.tabInfos[i].id = atoi(token);
-            token=strtok(NULL, ":");
-            if(token == NULL){
-                    break;
+            token = strtok(NULL, ":");
+            if (token == NULL)
+            {
+                break;
             }
             strcpy(rep->r.reqListeInfos.tabInfos[i].description, token);
-            
         }
-        rep->r.reqListeInfos.taille=i;
+        rep->r.reqListeInfos.taille = i;
         rep->r.reqListeInfos.tabInfos = realloc(rep->r.reqListeInfos.tabInfos, rep->r.reqListeInfos.taille * sizeof(infoListe_t));
-    break;
+        break;
 
     case INFOS_DIFFUSION:
-        token = strtok(serial, ":");
+        token = strtok(NULL, ":");
+        if (token == NULL)
+        {
+            rep->idReq = BAD_REQUEST;
+            return;
+        }
         strcpy(rep->r.reqInfosDiffusion.addrIP, token);
 
-        token = strtok(serial, ":");
+        token = strtok(NULL, ":");
+        if (token == NULL)
+        {
+            rep->idReq = BAD_REQUEST;
+            return;
+        }
         rep->r.reqInfosDiffusion.port = atoi(token);
 
-        token = strtok(serial, ":");
-        strcpy(rep->r.reqInfosDiffusion.description, strtok(NULL, ":"));
-    break;
+        token = strtok(NULL, ":");
+        if (token == NULL)
+        {
+            rep->idReq = BAD_REQUEST;
+            return;
+        }
+        strcpy(rep->r.reqInfosDiffusion.description, token);
+        break;
 
     case DEMANDE_RETIRER_LISTE:
-        rep->r.reqRetirerListe = atoi(strtok(NULL, ":"));
-    break;
-
-    case DEMANDE_LISTE:
-        //Il n'y a que l'id de la requête, aucune information n'est demandée
+        token = strtok(NULL, ":");
+        if (token == NULL)
+        {
+            rep->idReq = BAD_REQUEST;
+            return;
+        }
+        rep->r.reqRetirerListe = atoi(token);
         break;
 
     case DEMANDE_AJOUTER_LISTE:
-        rep->r.reqAjouterListe.port = atoi(strtok(NULL, ":"));
-        strcpy(rep->r.reqAjouterListe.description, strtok(NULL, ":"));
+        token = strtok(NULL, ":");
+        if (token == NULL)
+        {
+            rep->idReq = BAD_REQUEST;
+            return;
+        }
+        rep->r.reqAjouterListe.port = atoi(token);
+
+        token = strtok(NULL, ":");
+        if (token == NULL)
+        {
+            rep->idReq = BAD_REQUEST;
+            return;
+        }
+        strcpy(rep->r.reqAjouterListe.description, token);
+
+        break;
+    
+    //toutes les requêtes qui n'ont pas besoin de paramètres : 
+    case DEMANDE_LISTE:
+    case BAD_REQUEST:
+    case SUCCESS:
+    case ERROR:
         break;
 
-
-    break;
-
-    default:
+    default: //pour toutes les requêtes non traitées, on considère que c'est une BAD_REQUEST
+        rep->idReq = BAD_REQUEST;
+        return;
         break;
     }
 }

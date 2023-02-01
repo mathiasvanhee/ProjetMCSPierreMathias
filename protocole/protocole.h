@@ -23,8 +23,8 @@ typedef struct demandeListe{
 }demandeListe_t;
 
 typedef enum demandeRetirerListe{
-    DEFAULT,
-    ERROR
+    REASON_DEFAULT,
+    REASON_ERROR
 } demandeRetirerListe_t;
 
 //pour la demande de nouvelle diffusion, on a juste besoin du port et de la description,
@@ -43,7 +43,9 @@ typedef enum idReq{
     DEMANDE_LISTE,          //Demande de la liste des diffusions ouvertes
     DEMANDE_AJOUTER_LISTE,  //Demande de nouvelle diffusion
     SOCKET_CLOSED,          //La socket a été closed
-    BAD_REQUEST             //Un client a envoyé une requête erronée au serveur
+    BAD_REQUEST,            //Réponse du serveur lorsqu'un client a envoyé une requête erronée au serveur (données reçues incohérentes)
+    SUCCESS,                //Réponse du serveur signifiant que la requête a été traitée avec succès. 
+    ERROR                   //Réponse du serveur signifiant qu'il y a eu une erreur lors du traitement de la requête.
 } idReq_t;
 
 typedef struct req{
