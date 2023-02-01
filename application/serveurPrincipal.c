@@ -22,7 +22,7 @@ int main(int argc, char const *argv[])
     while(1){
         infoConnexion.sd = attenteAppel(se, &infoConnexion.addrClt);
         //pthread_create(&tids[nbThread++], NULL, (pf_t)&dialogueAvecClient, &infoConnexion);
-        pthread_create(tid, NULL, (pf_t)&dialogueAvecClient, &infoConnexion);
+        pthread_create(&tid, NULL, (pf_t)&dialogueAvecClient, &infoConnexion);
         sem_wait(&mutexConnexion);
     }
 
