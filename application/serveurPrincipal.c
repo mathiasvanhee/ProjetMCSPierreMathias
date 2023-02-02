@@ -60,7 +60,12 @@ void * dialogueAvecClient(infoConnexion_t * pInfoConnexion)
 
         case DEMANDE_LISTE:
             // Il n'y a que l'id de la requête, aucune information n'est demandée
-            
+            if(listeDiffusions_to_listeInfos(&listeDiffusions, &repServ.r.repListeInfos)){
+                repServ.idReq = LISTE_INFOS;
+            }
+            else{
+                repServ.idReq = ERROR;
+            }
             break;
 
         case DEMANDE_AJOUTER_LISTE:
@@ -89,6 +94,10 @@ void * dialogueAvecClient(infoConnexion_t * pInfoConnexion)
             else{
                 repServ.idReq = ERROR;
             }
+            break;
+        case LISTE_INFOS:
+            free(reqClient.r.repListeInfos.tabInfos);
+            repServ.idReq = BAD_REQUEST;
             break;
         default:
             repServ.idReq = BAD_REQUEST;
@@ -193,6 +202,24 @@ int supprimerDiffusion(listeDiffusions_t * pListe, long id){
     }
 
     //on libère la mutex
+    sem_post(&mutexListeDiffusions);
+    return 1;
+}
+
+int listeDiffusions_to_listeInfos(listeDiffusions_t * pListeSrc, listeInfos_t * pListeDest){
+    sem_wait(&mutexListeDiffusions);
+    pListeDest->taille = pListeSrc->taille;
+    pListeDest->tabInfos = malloc(sizeof(infoListe_t) * pListeDest->taille);
+    if(pListeDest->tabInfos == NULL){
+        sem_post(&mutexListeDiffusions);
+        return 0;
+    }
+
+    for(int i = 0; i < pListeDest->taille; i++){
+        strcpy(pListeDest->tabInfos[i].description, pListeSrc->tabPInfos[0]->description);
+        pListeDest->tabInfos[i].id =  pListeSrc->tabPInfos[0]->id;
+    }
+
     sem_post(&mutexListeDiffusions);
     return 1;
 }

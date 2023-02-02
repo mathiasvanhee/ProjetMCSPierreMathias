@@ -15,31 +15,31 @@ void str_to_rep(char * serial, req_t * rep){
     switch (rep->idReq)
     {
     case LISTE_INFOS:
-        rep->r.reqListeInfos.taille = 10;
-        rep->r.reqListeInfos.tabInfos = malloc(rep->r.reqListeInfos.taille * sizeof(infoListe_t));
+        rep->r.repListeInfos.taille = 10;
+        rep->r.repListeInfos.tabInfos = malloc(rep->r.repListeInfos.taille * sizeof(infoListe_t));
         // On realloc dès qu'on ajoute un élément car la taille est variable (inconnue au départ) (ici par bloc de 10)
         for (i = 0;; i++)
         {
-            if (i >= rep->r.reqListeInfos.taille)
+            if (i >= rep->r.repListeInfos.taille)
             {
-                rep->r.reqListeInfos.taille += 10;
-                rep->r.reqListeInfos.tabInfos = realloc(rep->r.reqListeInfos.tabInfos, rep->r.reqListeInfos.taille * sizeof(infoListe_t));
+                rep->r.repListeInfos.taille += 10;
+                rep->r.repListeInfos.tabInfos = realloc(rep->r.repListeInfos.tabInfos, rep->r.repListeInfos.taille * sizeof(infoListe_t));
             }
             token = strtok(NULL, ":");
             if (token == NULL)
             {
                 break;
             }
-            rep->r.reqListeInfos.tabInfos[i].id = atoi(token);
+            rep->r.repListeInfos.tabInfos[i].id = atoi(token);
             token = strtok(NULL, ":");
             if (token == NULL)
             {
                 break;
             }
-            strcpy(rep->r.reqListeInfos.tabInfos[i].description, token);
+            strcpy(rep->r.repListeInfos.tabInfos[i].description, token);
         }
-        rep->r.reqListeInfos.taille = i;
-        rep->r.reqListeInfos.tabInfos = realloc(rep->r.reqListeInfos.tabInfos, rep->r.reqListeInfos.taille * sizeof(infoListe_t));
+        rep->r.repListeInfos.taille = i;
+        rep->r.repListeInfos.tabInfos = realloc(rep->r.repListeInfos.tabInfos, rep->r.repListeInfos.taille * sizeof(infoListe_t));
         break;
 
     case INFOS_DIFFUSION:
@@ -127,9 +127,9 @@ void req_to_str(req_t * req, char * serial){
     switch (req->idReq)
     {
     case LISTE_INFOS:
-        for (int i = 0; i < req->r.reqListeInfos.taille; i++)
+        for (int i = 0; i < req->r.repListeInfos.taille; i++)
         {
-            sprintf(temp, ":%ld:%s", req->r.reqListeInfos.tabInfos[i].id, req->r.reqListeInfos.tabInfos[i].description);
+            sprintf(temp, ":%ld:%s", req->r.repListeInfos.tabInfos[i].id, req->r.repListeInfos.tabInfos[i].description);
             strcat(serial, temp);
         }
         break;

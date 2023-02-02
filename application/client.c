@@ -267,8 +267,6 @@ void serveurClient()
         PAUSE("");
         return;
     }
-
-    se = creerSockAddrEcoute("0.0.0.0", port, 5);
     printf("se = %d\n", se);
 
     diffusionEnCours = 1;
