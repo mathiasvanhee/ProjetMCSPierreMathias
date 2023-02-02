@@ -216,8 +216,8 @@ int listeDiffusions_to_listeInfos(listeDiffusions_t * pListeSrc, listeInfos_t * 
     }
 
     for(int i = 0; i < pListeDest->taille; i++){
-        strcpy(pListeDest->tabInfos[i].description, pListeSrc->tabPInfos[0]->description);
-        pListeDest->tabInfos[i].id =  pListeSrc->tabPInfos[0]->id;
+        strcpy(pListeDest->tabInfos[i].description, pListeSrc->tabPInfos[i]->description);
+        pListeDest->tabInfos[i].id =  pListeSrc->tabPInfos[i]->id;
     }
 
     sem_post(&mutexListeDiffusions);
