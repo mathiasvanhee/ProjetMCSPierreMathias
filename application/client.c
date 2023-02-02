@@ -148,13 +148,6 @@ void afficherListeDiffusion()
         return;
     }
 
-    for (int j = 0 ; j < receptionListe.r.repListeInfos.taille ; j++)
-    {
-        mvwprintw(list, j + 1, 1, "%s", receptionListe.r.repListeInfos.tabInfos[j].description);
-    }
-    //char choix[8][30] = {"Voir la liste des diffusions", "Lancer une diffusion", "Quitter"};
-    //int tailleListe = 3;
-    PAUSE("");
     int action;
     int diffusionSelectionnee = 0;
     int selectionEnCours = 0;
@@ -225,13 +218,40 @@ void afficherListeDiffusion()
             break;
 
         case 10:
-                break;
+            connectDiffusion(receptionListe.r.repListeInfos.tabInfos[diffusionSelectionnee].id);
+            delwin(list);
+            erase();
+            free(receptionListe.r.repListeInfos.tabInfos);
+            return;
+            break;
 
         default:
             break;
         }
     }
 }
+
+void connectDiffusion(long idDiff){
+    req_t demandeInfosDiffusion;
+    req_t receptionInfosDiffusion;
+    initReqDemandeListe(&demandeInfosDiffusion, idDiff);
+    envoyerReqStream(sockDialogueServPrincipal, &demandeInfosDiffusion, (fct_Serial *) &req_to_str);
+    lireRepStream(sockDialogueServPrincipal, &receptionInfosDiffusion, (fct_Serial *) &str_to_rep);
+
+    if (receptionInfosDiffusion.idReq != INFOS_DIFFUSION)// si la requete n'est pas une liste d'infos
+    {
+        //mvwprintw(list,2,1,"Erreur de reception de la liste des diffusions");
+        refresh();
+        PAUSE("");
+        return;
+    }
+
+    int sockDialogueDiff = creerSocket(SOCK_DGRAM);
+    connectSrv(sockDialogueDiff, receptionInfosDiffusion.r.repInfosDiffusion.addrIP, receptionInfosDiffusion.r.repInfosDiffusion.port);
+
+    pthread_create(&tid, NULL, (void *) &recevoirDiffusion, (void *) &sockDialogueDiff);
+}
+
 
 /**
  * @brief création d'un serveur d'écoute pour la diffuion
@@ -331,12 +351,6 @@ void *connectThread()
         sd = attenteAppel(se, &clt);
         pthread_create(&tids[nbThread++], NULL, (pf_t)diffusion, NULL);
     }
-    pthread_exit(NULL);
-}
-
-void *diffusion()
-{
-
     pthread_exit(NULL);
 }
 

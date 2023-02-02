@@ -177,3 +177,8 @@ void initReqRetirerListe(req_t * req, demandeRetirerListe_t raison){
     req->idReq = DEMANDE_RETIRER_LISTE;
     req->r.reqRetirerListe = raison;
 }
+
+void initReqDemInfosDiff(req_t * req, long idDiff){
+    req->idReq = DEMANDE_INFOS_DIFFUSION;
+    req->r.reqInfosDiffusion.id = idDiff;
+}

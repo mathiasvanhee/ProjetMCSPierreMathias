@@ -1,6 +1,7 @@
 #include "../session/session.h"
 #include "../data/data.h"
 #include "../protocole/protocole.h"
+#include "../gestionVideo/gestionVideo.h"
 #include <pthread.h>
 #include <ncurses.h>
 #include <semaphore.h>
@@ -26,7 +27,6 @@ void afficherListeDiffusion();
 void serveurClient();
 void* threadEcoute(int* se);
 void *connectThread();
-void* diffusion();
 void viderBuffer();
 void dialogueAvecServeur(int sd);
 
