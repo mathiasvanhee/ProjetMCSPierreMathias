@@ -64,3 +64,4 @@ void str_to_rep(char *, req_t *);
 void req_to_str(req_t *, char *);
 void initReqAjouterListe(req_t * req, int port, char * description);
 void initReqRetirerListe(req_t * req, demandeRetirerListe_t raison);
+void initReqDemandeListe(req_t * req);

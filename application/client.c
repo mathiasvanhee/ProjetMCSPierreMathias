@@ -113,12 +113,12 @@ int Menu()
 
 void afficherListeDiffusion()
 {
-    /* req_t demandeListe;
+    req_t demandeListe;
     req_t receptionListe;
     initReqDemandeListe(&demandeListe);
-    envoyerReqStream(sockDialogueServPrincipal, &demandeListe, req_to_str);
+    envoyerReqStream(sockDialogueServPrincipal, &demandeListe, (fct_Serial *) &req_to_str);
 
-    lireRepStream(sockDialogueServPrincipal, receptionListe, str_to_rep); */
+    lireRepStream(sockDialogueServPrincipal, &receptionListe, (fct_Serial *) &str_to_rep);
 
     WINDOW *list = newwin(7, 100, 0, 30);
     start_color();
@@ -128,13 +128,38 @@ void afficherListeDiffusion()
     keypad(list, TRUE);
     wrefresh(list);
 
-    char choix[8][30] = {"Voir la liste des diffusions", "Lancer une diffusion", "Quitter"};
+    if (receptionListe.idReq != LISTE_INFOS)// si la requete n'est pas une liste d'infos
+    {
+        //mvwprintw(list,2,1,"Erreur de reception de la liste des diffusions");
+        refresh();
+        PAUSE("");
+        delwin(list);
+        erase();
+        return;
+    }
+    if (receptionListe.r.repListeInfos.taille == 0)
+    {
+        //mvwprintw(list,2,1,"Aucune diffusion en cours");
+        refresh();
+        PAUSE("");
+        delwin(list);
+        erase();
+        free(receptionListe.r.repListeInfos.tabInfos);
+        return;
+    }
 
+    for (int j = 0 ; j < receptionListe.r.repListeInfos.taille ; j++)
+    {
+        mvwprintw(list, j + 1, 1, "%s", receptionListe.r.repListeInfos.tabInfos[j].description);
+    }
+    //char choix[8][30] = {"Voir la liste des diffusions", "Lancer une diffusion", "Quitter"};
+    //int tailleListe = 3;
+    PAUSE("");
     int action;
     int diffusionSelectionnee = 0;
     int selectionEnCours = 0;
     int debSelect = 0;
-    int tailleListe = 3;
+    int tailleListe = receptionListe.r.repListeInfos.taille;
     int incrementation;
     if (tailleListe < 5)
         incrementation = tailleListe;
@@ -150,7 +175,7 @@ void afficherListeDiffusion()
                 wattron(list, A_REVERSE); // met en surbrillance le choix actuel
             if (i < tailleListe)
             {
-                mvwprintw(list, i + 1 - debSelect, 1, "%s", choix[i]);
+                mvwprintw(list, i + 1 - debSelect, 1, "%s", receptionListe.r.repListeInfos.tabInfos[i].description);
                 wattroff(list, A_REVERSE);
             }
         }
@@ -192,27 +217,15 @@ void afficherListeDiffusion()
             }
             break;
 
+        case 'q':
+            delwin(list);
+            erase();
+            free(receptionListe.r.repListeInfos.tabInfos);
+            return;
+            break;
+
         case 10:
-            // debug action
-            //  printw("Vous avez choisi : %s", choix[selectionEnCours]);
-            //  refresh();
-            switch (selectionEnCours)
-            {
-            case 0:
-
                 break;
-            case 1:
-
-                break;
-
-            case 2:
-                delwin(list);
-                erase();
-                return;
-                break;
-            default:
-                break;
-            }
 
         default:
             break;
@@ -289,7 +302,7 @@ void *threadEcoute(int *se)
 
     pthread_cancel(tid);
     // arreterVideo(); //arrete la capture vidéo
-    printf("Fin de la diffusion\n");
+    //printf("Fin de la diffusion\n");
 
     // on informe le serveur central de la fin de diffusion :
     req_t demandeFinDiffusion, repServeur;

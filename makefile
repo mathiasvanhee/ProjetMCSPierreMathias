@@ -32,3 +32,4 @@ clean :
 
 archive: clean
 	tar -cvzf archive.tar.gz ./src/ ./include/ ./cpteRendu makefile ./bin
+	
