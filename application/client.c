@@ -208,7 +208,6 @@ afficherListeDiffusion()
  */
 void serveurClient()
 {
-
     char IP[16];
     char desc[MAX_DESC];
     int port;
@@ -226,12 +225,28 @@ void serveurClient()
     /*printf("%s\n", IP);*/
     printf("%d\n", port);
     printf("%s\n", desc);
+    
+    se = creerSockAddrEcoute("0.0.0.0", port, 5);
+
+    if(se == -1){
+        //le bind n'a pas marché : 
+        fprintf(stderr, "le port %d est indisponible", port);
+        PAUSE("");
+        return ;
+    }
 
     // demarrerVideo(); //lance la capture vidéo
-    // On envoie requête au serveur principal, afin de l'informer de la création d'une diffusion.
-    req_t demandeAjouterListe;
+    //On envoie requête au serveur principal, afin de l'informer de la création d'une diffusion.
+    req_t demandeAjouterListe, repServeur;
     initReqAjouterListe(&demandeAjouterListe, port, desc);
-    envoyerReqStream(sockDialogueServPrincipal, &demandeAjouterListe, req_to_str);
+    envoyerReqStream(sockDialogueServPrincipal, &demandeAjouterListe, (fct_Serial *) &req_to_str);
+    lireRepStream(sockDialogueServPrincipal, &repServeur, (fct_Serial *) &str_to_rep);
+    if(repServeur.idReq != SUCCESS){
+        close(se);
+        fprintf(stderr, "Le serveur central n'a pas accepté la diffusion.");
+        PAUSE("");
+        return;
+    }
 
     se = creerSockAddrEcoute("0.0.0.0", port, 5);
     printf("se = %d\n", se);
@@ -257,7 +272,18 @@ void *threadEcoute(int *se)
     pthread_cancel(tid);
     // arreterVideo(); //arrete la capture vidéo
     printf("Fin de la diffusion\n");
-    // TODO : envoyer requête au serveur principal, afin de l'informer de la fermeture de la diffusion.
+    
+    //on informe le serveur central de la fin de diffusion :
+    req_t demandeFinDiffusion, repServeur;
+    initReqRetirerListe(&demandeFinDiffusion, REASON_DEFAULT);
+    envoyerReqStream(sockDialogueServPrincipal, &demandeFinDiffusion, (fct_Serial *) &req_to_str);
+    lireRepStream(sockDialogueServPrincipal, &repServeur, (fct_Serial *) &str_to_rep);
+    if(repServeur.idReq != SUCCESS){
+        //TODO : à gérer (normalement impossible)
+        fprintf(stderr, "Le serveur central n'a pas accepté la fin de diffusion.");
+        PAUSE("");
+    }
+
     close(*se);
     pthread_exit(NULL);
 }
