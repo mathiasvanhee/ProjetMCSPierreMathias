@@ -25,7 +25,6 @@ void dialogueAvecServeur(int sd)
  */
 int Menu()
 {
-    printf("entrer menu");
     initscr();
     noecho();
     cbreak();
@@ -34,10 +33,7 @@ int Menu()
     int yMax, xMax;
     getmaxyx(stdscr, yMax, xMax);
 
-    WINDOW *menu = newwin(10, 40, yMax / 2, xMax / 2);
-    // box(menu, 0, 0);
-    printw("Dans menu");
-
+    WINDOW *menu = newwin(5, 30, 0, 0);
     refresh();
     wrefresh(menu);
 
@@ -80,12 +76,15 @@ int Menu()
         }
         if (action == 10)
         {
-            printw("Vous avez choisi : %s", choix[selection]);
-            refresh();
+            
+            //printw("Vous avez choisi : %s", choix[selection]);  //debug action
+            //refresh();
             switch (selection)
             {
             case 0:
+                //endwin();
                 afficherListeDiffusion();
+                return 1;
                 break;
             case 1:
                 if (diffusionEnCours == 1)
@@ -112,8 +111,95 @@ int Menu()
     }
 }
 
-void afficherListeDiffusion()
+afficherListeDiffusion()
 {
+    /* req_t demandeListe;
+    req_t receptionListe;
+    initReqDemandeListe(&demandeListe);
+    envoyerReqStream(sockDialogueServPrincipal, &demandeListe, req_to_str);
+
+    lireRepStream(sockDialogueServPrincipal, receptionListe, str_to_rep); */
+
+    WINDOW *list = newwin(5, 100, 0, 30);
+    start_color();
+    init_pair(1,COLOR_BLACK, COLOR_WHITE); //The order is pair_number, foreground, background
+    wbkgd(list, COLOR_PAIR(1));
+    wrefresh(list);
+    char choix[3][30] = {"Voir la liste des diffusions", "Lancer une diffusion", "Quitter","LOLLLLL!","2505:","nouveau jeu ultime","test liste","WAHOU découverte"};
+    
+    
+    int action;
+    int diffusionSelectionnee = 0;
+    int selectionEnCours = 0;
+    int debSelect=0;
+
+    while(1)
+    {
+        for (int i = debSelect; i < (debSelect+3); i++)
+        {
+            if (i == selectionEnCours)
+                wattron(list, A_REVERSE); // met en surbrillance le choix actuel
+            mvwprintw(list, i+1, 1, "%s", choix[i]);
+            //mvwprintw(menu, i + 1, 1,"%ld: %s", receptionListe.r.reqListeInfos.tabInfos[i].id, receptionListe.r.reqListeInfos.tabInfos[i].desc);
+            wattroff(list, A_REVERSE);
+        }
+        action = wgetch(list);
+
+        switch (action)
+        {
+        case KEY_UP:
+            selectionEnCours--;
+            diffusionSelectionnee--;
+            selectionEnCours = (selectionEnCours < 0) ? 2 : selectionEnCours;
+            break;
+        case KEY_DOWN:
+            selectionEnCours++;
+            diffusionSelectionnee++;
+            if (selectionEnCours > 2)
+            {
+                wclear(list);
+                debSelect+=3;
+                selectionEnCours = 0;
+            }
+            break;
+        default:
+            break;
+        }
+        if (action == 10)
+        {
+            //debug action
+            //printw("Vous avez choisi : %s", choix[selection]);
+            //refresh();
+            switch (selectionEnCours)
+            {
+            case 0:
+                //endwin();
+                afficherListeDiffusion();
+                return 1;
+                break;
+            case 1:
+                if (diffusionEnCours == 1)
+                {
+                    diffusionEnCours = 0;
+                    strcpy(choix[1], "Lancer une diffusion");
+                }
+                else
+                {
+                    endwin();
+                    serveurClient();
+                    return 1;
+                }
+                break;
+
+            case 2:
+                endwin();
+                return 0;
+                break;
+            default:
+                break;
+            }
+        }
+    }
 }
 
 /**
@@ -142,14 +228,14 @@ void serveurClient()
     printf("%s\n", desc);
 
     // demarrerVideo(); //lance la capture vidéo
-    //On envoie requête au serveur principal, afin de l'informer de la création d'une diffusion.
+    // On envoie requête au serveur principal, afin de l'informer de la création d'une diffusion.
     req_t demandeAjouterListe;
     initReqAjouterListe(&demandeAjouterListe, port, desc);
     envoyerReqStream(sockDialogueServPrincipal, &demandeAjouterListe, req_to_str);
 
-    se = creerSockAddrEcoute(IP, port, 5);
+    se = creerSockAddrEcoute("0.0.0.0", port, 5);
     printf("se = %d\n", se);
-    
+
     diffusionEnCours = 1;
     pthread_create(&tid, NULL, (pf_t)threadEcoute, &se);
 }
@@ -164,15 +250,14 @@ void *threadEcoute(int *se)
 {
     pthread_t tid;
 
-    
     pthread_create(&tid, NULL, (pf_t)connectThread, NULL);
     while (diffusionEnCours)
-    ;
+        ;
 
     pthread_cancel(tid);
     // arreterVideo(); //arrete la capture vidéo
     printf("Fin de la diffusion\n");
-    //TODO : envoyer requête au serveur principal, afin de l'informer de la fermeture de la diffusion.
+    // TODO : envoyer requête au serveur principal, afin de l'informer de la fermeture de la diffusion.
     close(*se);
     pthread_exit(NULL);
 }
@@ -186,7 +271,7 @@ void *connectThread()
     while (diffusionEnCours)
     {
         sd = attenteAppel(se, &clt);
-        pthread_create(&tids[nbThread++], NULL, (pf_t)diffusion, &sd);
+        pthread_create(&tids[nbThread++], NULL, (pf_t)diffusion, NULL);
     }
     pthread_exit(NULL);
 }

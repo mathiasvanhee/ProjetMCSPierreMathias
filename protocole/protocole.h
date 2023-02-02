@@ -19,9 +19,6 @@ typedef struct listInfos{
     infoListe_t * tabInfos;
 }listeInfos_t;
 
-typedef struct demandeListe{
-}demandeListe_t;
-
 typedef enum demandeRetirerListe{
     DEFAULT,
     ERROR
@@ -50,7 +47,6 @@ typedef struct{
         listeInfos_t reqListeInfos; //idReq = 1; à malloc
         infosDiffusion_t reqInfosDiffusion;//idReq = 2
         demandeRetirerListe_t reqRetirerListe;//idReq = 3
-        demandeListe_t  reqDemandeListe;//idReq = 4
         demandeAjouterListe_t  reqAjouterListe;//idReq = 5
     } r;
 } req_t;

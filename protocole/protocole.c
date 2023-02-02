@@ -106,3 +106,7 @@ void initReqAjouterListe(req_t * req, int port, char * description){
     strcpy(req->r.reqAjouterListe.description, description);
     req->r.reqAjouterListe.port = port;
 }
+
+void initReqDemandeListe(req_t * req){
+    req->idReq = DEMANDE_LISTE;
+}
