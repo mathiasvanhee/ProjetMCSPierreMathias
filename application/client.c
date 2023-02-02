@@ -76,13 +76,13 @@ int Menu()
         }
         if (action == 10)
         {
-            
-            //printw("Vous avez choisi : %s", choix[selection]);  //debug action
-            //refresh();
+
+            // printw("Vous avez choisi : %s", choix[selection]);  //debug action
+            // refresh();
             switch (selection)
             {
             case 0:
-                //endwin();
+                // endwin();
                 afficherListeDiffusion();
                 return 1;
                 break;
@@ -111,7 +111,7 @@ int Menu()
     }
 }
 
-afficherListeDiffusion()
+void afficherListeDiffusion()
 {
     /* req_t demandeListe;
     req_t receptionListe;
@@ -120,84 +120,102 @@ afficherListeDiffusion()
 
     lireRepStream(sockDialogueServPrincipal, receptionListe, str_to_rep); */
 
-    WINDOW *list = newwin(5, 100, 0, 30);
+    WINDOW *list = newwin(7, 100, 0, 30);
     start_color();
-    init_pair(1,COLOR_BLACK, COLOR_WHITE); //The order is pair_number, foreground, background
+    init_pair(1, COLOR_BLACK, COLOR_WHITE); // The order is pair_number, foreground, background
     wbkgd(list, COLOR_PAIR(1));
+    curs_set(0);
+    keypad(list, TRUE);
     wrefresh(list);
-    char choix[3][30] = {"Voir la liste des diffusions", "Lancer une diffusion", "Quitter","LOLLLLL!","2505:","nouveau jeu ultime","test liste","WAHOU découverte"};
-    
-    
+
+    char choix[8][30] = {"Voir la liste des diffusions", "Lancer une diffusion", "Quitter"};
+
     int action;
     int diffusionSelectionnee = 0;
     int selectionEnCours = 0;
-    int debSelect=0;
+    int debSelect = 0;
+    int tailleListe = 3;
+    int incrementation;
+    if (tailleListe < 5)
+        incrementation = tailleListe;
+    else
+        incrementation = 5;
 
-    while(1)
+    while (1)
     {
-        for (int i = debSelect; i < (debSelect+3); i++)
+
+        for (int i = debSelect; i < (debSelect + incrementation); i++)
         {
-            if (i == selectionEnCours)
+            if (i == (selectionEnCours + debSelect))
                 wattron(list, A_REVERSE); // met en surbrillance le choix actuel
-            mvwprintw(list, i+1, 1, "%s", choix[i]);
-            //mvwprintw(menu, i + 1, 1,"%ld: %s", receptionListe.r.reqListeInfos.tabInfos[i].id, receptionListe.r.reqListeInfos.tabInfos[i].desc);
-            wattroff(list, A_REVERSE);
+            if (i < tailleListe)
+            {
+                mvwprintw(list, i + 1 - debSelect, 1, "%s", choix[i]);
+                wattroff(list, A_REVERSE);
+            }
         }
         action = wgetch(list);
 
         switch (action)
         {
         case KEY_UP:
-            selectionEnCours--;
-            diffusionSelectionnee--;
-            selectionEnCours = (selectionEnCours < 0) ? 2 : selectionEnCours;
-            break;
-        case KEY_DOWN:
-            selectionEnCours++;
-            diffusionSelectionnee++;
-            if (selectionEnCours > 2)
+            if (diffusionSelectionnee != 0)
             {
-                wclear(list);
-                debSelect+=3;
-                selectionEnCours = 0;
-            }
-            break;
-        default:
-            break;
-        }
-        if (action == 10)
-        {
-            //debug action
-            //printw("Vous avez choisi : %s", choix[selection]);
-            //refresh();
-            switch (selectionEnCours)
-            {
-            case 0:
-                //endwin();
-                afficherListeDiffusion();
-                return 1;
-                break;
-            case 1:
-                if (diffusionEnCours == 1)
+                if (selectionEnCours == 0)
                 {
-                    diffusionEnCours = 0;
-                    strcpy(choix[1], "Lancer une diffusion");
+                    wclear(list);
+                    debSelect -= incrementation;
+                    selectionEnCours = incrementation - 1;
                 }
                 else
                 {
-                    endwin();
-                    serveurClient();
-                    return 1;
+                    selectionEnCours--;
                 }
+                diffusionSelectionnee--;
+            }
+            break;
+
+        case KEY_DOWN:
+            if (diffusionSelectionnee != (tailleListe - 1))
+            {
+                if (selectionEnCours == (incrementation - 1))
+                {
+                    wclear(list);
+                    debSelect += incrementation;
+                    selectionEnCours = 0;
+                }
+                else
+                {
+                    selectionEnCours++;
+                }
+                diffusionSelectionnee++;
+            }
+            break;
+
+        case 10:
+            // debug action
+            //  printw("Vous avez choisi : %s", choix[selectionEnCours]);
+            //  refresh();
+            switch (selectionEnCours)
+            {
+            case 0:
+
+                break;
+            case 1:
+
                 break;
 
             case 2:
-                endwin();
-                return 0;
+                delwin(list);
+                erase();
+                return;
                 break;
             default:
                 break;
             }
+
+        default:
+            break;
         }
     }
 }
@@ -225,23 +243,25 @@ void serveurClient()
     /*printf("%s\n", IP);*/
     printf("%d\n", port);
     printf("%s\n", desc);
-    
+
     se = creerSockAddrEcoute("0.0.0.0", port, 5);
 
-    if(se == -1){
-        //le bind n'a pas marché : 
+    if (se == -1)
+    {
+        // le bind n'a pas marché :
         fprintf(stderr, "le port %d est indisponible", port);
         PAUSE("");
-        return ;
+        return;
     }
 
     // demarrerVideo(); //lance la capture vidéo
-    //On envoie requête au serveur principal, afin de l'informer de la création d'une diffusion.
+    // On envoie requête au serveur principal, afin de l'informer de la création d'une diffusion.
     req_t demandeAjouterListe, repServeur;
     initReqAjouterListe(&demandeAjouterListe, port, desc);
-    envoyerReqStream(sockDialogueServPrincipal, &demandeAjouterListe, (fct_Serial *) &req_to_str);
-    lireRepStream(sockDialogueServPrincipal, &repServeur, (fct_Serial *) &str_to_rep);
-    if(repServeur.idReq != SUCCESS){
+    envoyerReqStream(sockDialogueServPrincipal, &demandeAjouterListe, (fct_Serial *)&req_to_str);
+    lireRepStream(sockDialogueServPrincipal, &repServeur, (fct_Serial *)&str_to_rep);
+    if (repServeur.idReq != SUCCESS)
+    {
         close(se);
         fprintf(stderr, "Le serveur central n'a pas accepté la diffusion.");
         PAUSE("");
@@ -272,14 +292,15 @@ void *threadEcoute(int *se)
     pthread_cancel(tid);
     // arreterVideo(); //arrete la capture vidéo
     printf("Fin de la diffusion\n");
-    
-    //on informe le serveur central de la fin de diffusion :
+
+    // on informe le serveur central de la fin de diffusion :
     req_t demandeFinDiffusion, repServeur;
     initReqRetirerListe(&demandeFinDiffusion, REASON_DEFAULT);
-    envoyerReqStream(sockDialogueServPrincipal, &demandeFinDiffusion, (fct_Serial *) &req_to_str);
-    lireRepStream(sockDialogueServPrincipal, &repServeur, (fct_Serial *) &str_to_rep);
-    if(repServeur.idReq != SUCCESS){
-        //TODO : à gérer (normalement impossible)
+    envoyerReqStream(sockDialogueServPrincipal, &demandeFinDiffusion, (fct_Serial *)&req_to_str);
+    lireRepStream(sockDialogueServPrincipal, &repServeur, (fct_Serial *)&str_to_rep);
+    if (repServeur.idReq != SUCCESS)
+    {
+        // TODO : à gérer (normalement impossible)
         fprintf(stderr, "Le serveur central n'a pas accepté la fin de diffusion.");
         PAUSE("");
     }
