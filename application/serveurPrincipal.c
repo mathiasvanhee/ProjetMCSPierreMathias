@@ -20,7 +20,7 @@ int main(int argc, char const *argv[])
 
 void creerProcessusServeur(int se, int sd, struct sockaddr_in *clt)
 {
-    /*int pid;
+    int pid;
     CHECK(pid = fork(), "fork + Problème de création de processus !");
     if (pid == 0)
     {
@@ -33,7 +33,6 @@ void creerProcessusServeur(int se, int sd, struct sockaddr_in *clt)
     printf("HERE");
     close(sd);
     traiterSIGCHLD(SIGCHLD);
-    */
 }
 
 void dialogueAvecClient(int sd, struct sockaddr_in *clt)
