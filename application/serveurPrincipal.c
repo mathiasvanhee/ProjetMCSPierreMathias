@@ -36,7 +36,8 @@ void * dialogueAvecClient(infoConnexion_t * pInfoConnexion)
 {
     req_t reqClient;
     req_t repServ;
-    int isSockClosed = 0;
+    int isSockClosed = 0, isClientEnDiffusion = 0;
+    long idDiffusionClient = 0;
 
     char addrIP[30];
 
@@ -52,26 +53,42 @@ void * dialogueAvecClient(infoConnexion_t * pInfoConnexion)
         switch (reqClient.idReq)
         {
         case DEMANDE_RETIRER_LISTE:
-            repServ.idReq = ERROR;//pas encore traitée
+            supprimerDiffusion(&listeDiffusions, idDiffusionClient);
+            isClientEnDiffusion = 0;
+            repServ.idReq = SUCCESS;//pas encore traitée
             break;
 
         case DEMANDE_LISTE:
             // Il n'y a que l'id de la requête, aucune information n'est demandée
-            repServ.idReq = ERROR;//pas encore traitée
+            
             break;
 
         case DEMANDE_AJOUTER_LISTE:
-            insererListeDiffusions(&listeDiffusions, &reqClient.r.reqAjouterListe, addrIP);
+            idDiffusionClient = insererListeDiffusions(&listeDiffusions, &reqClient.r.reqAjouterListe, addrIP);
+            isClientEnDiffusion = 1;
             repServ.idReq = SUCCESS;
             break;
 
         case SOCKET_CLOSED:
-            //on stop
+            //on stoppe
             isSockClosed = 1;
             close(sd);
+
+            //on supprime la diffusion de la liste si toujours présente :
+            if(isClientEnDiffusion)
+                supprimerDiffusion(&listeDiffusions, idDiffusionClient);
+            
             break;
         case BAD_REQUEST :
             repServ.idReq = BAD_REQUEST;
+            break;
+        case DEMANDE_INFOS_DIFFUSION : 
+            if(getDiffusion(&listeDiffusions, &repServ.r.repInfosDiffusion, reqClient.r.reqInfosDiffusion.id) == 0){
+                repServ.idReq = INFOS_DIFFUSION;
+            }
+            else{
+                repServ.idReq = ERROR;
+            }
             break;
         default:
             repServ.idReq = BAD_REQUEST;
@@ -90,7 +107,8 @@ void initListeDiffusions(listeDiffusions_t * pListe){
     pListe->alloc_len = BLOC_MEM_LISTE;
 }
 
-void insererListeDiffusions(listeDiffusions_t * pListe, demandeAjouterListe_t * pDemandeDiffusion, char addrIP[MAX_DESC]){
+long insererListeDiffusions(listeDiffusions_t * pListe, demandeAjouterListe_t * pDemandeDiffusion, char addrIP[MAX_DESC]){
+    long returnId;
     infosDiffusion_t * pNewDiff;
     pNewDiff = malloc(sizeof(infosDiffusion_t));
     
@@ -112,19 +130,34 @@ void insererListeDiffusions(listeDiffusions_t * pListe, demandeAjouterListe_t * 
     pListe->tabPInfos[pListe->taille] = pNewDiff;
     pListe->taille++;
 
+    returnId = pNewDiff->id;
+
     //on libère la mutex
     sem_post(&mutexListeDiffusions);
+
+    return returnId;
 }
 
-infosDiffusion_t * trouverDiffusion(listeDiffusions_t * pListe, long id){
+int getDiffusion(listeDiffusions_t * pListe, infosDiffusion_t * pInfos,  long id){
+    //on attend la mutex
+    sem_wait(&mutexListeDiffusions);
     for (int i = 0; i < pListe->taille; i++)
     {
         if(pListe->tabPInfos[i]->id == id){
-
-            return pListe->tabPInfos[i];
+            strcpy(pInfos->addrIP, pListe->tabPInfos[i]->addrIP);
+            strcpy(pInfos->description, pListe->tabPInfos[i]->description);
+            pInfos->id = pListe->tabPInfos[i]->id;
+            pInfos->port = pListe->tabPInfos[i]->port;
+            
+            //on libère la mutex
+            sem_post(&mutexListeDiffusions);
+            return 1;
         }
     }
-    return NULL;
+    //on libère la mutex
+    sem_post(&mutexListeDiffusions);
+    return 0;
+    
 }
 
 

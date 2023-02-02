@@ -49,7 +49,7 @@ void str_to_rep(char * serial, req_t * rep){
             rep->idReq = BAD_REQUEST;
             return;
         }
-        strcpy(rep->r.reqInfosDiffusion.addrIP, token);
+        strcpy(rep->r.repInfosDiffusion.addrIP, token);
 
         token = strtok(NULL, ":");
         if (token == NULL)
@@ -57,7 +57,7 @@ void str_to_rep(char * serial, req_t * rep){
             rep->idReq = BAD_REQUEST;
             return;
         }
-        rep->r.reqInfosDiffusion.port = atoi(token);
+        rep->r.repInfosDiffusion.port = atoi(token);
 
         token = strtok(NULL, ":");
         if (token == NULL)
@@ -65,7 +65,7 @@ void str_to_rep(char * serial, req_t * rep){
             rep->idReq = BAD_REQUEST;
             return;
         }
-        strcpy(rep->r.reqInfosDiffusion.description, token);
+        strcpy(rep->r.repInfosDiffusion.description, token);
         break;
 
     case DEMANDE_RETIRER_LISTE:
@@ -96,7 +96,15 @@ void str_to_rep(char * serial, req_t * rep){
         strcpy(rep->r.reqAjouterListe.description, token);
 
         break;
-    
+    case DEMANDE_INFOS_DIFFUSION:
+        token = strtok(NULL, ":");
+        if (token == NULL)
+        {
+            rep->idReq = BAD_REQUEST;
+            return;
+        }
+        rep->r.reqInfosDiffusion.id = atoi(token);
+        break;
     //toutes les requêtes qui n'ont pas besoin de paramètres : 
     case DEMANDE_LISTE:
     case BAD_REQUEST:
@@ -127,7 +135,7 @@ void req_to_str(req_t * req, char * serial){
         break;
 
     case INFOS_DIFFUSION:
-        sprintf(temp, ":%s:%d:%s", req->r.reqInfosDiffusion.addrIP, req->r.reqInfosDiffusion.port, req->r.reqInfosDiffusion.description);
+        sprintf(temp, ":%s:%d:%s", req->r.repInfosDiffusion.addrIP, req->r.repInfosDiffusion.port, req->r.repInfosDiffusion.description);
         strcat(serial, temp);
         break;
 
@@ -145,6 +153,11 @@ void req_to_str(req_t * req, char * serial){
         strcat(serial, temp);
         break;
 
+    case DEMANDE_INFOS_DIFFUSION:
+        sprintf(temp, ":%ld", req->r.reqInfosDiffusion.id);
+        strcat(serial, temp);
+        break;
+
     default:
         break;
     }
@@ -154,4 +167,9 @@ void initReqAjouterListe(req_t * req, int port, char * description){
     req->idReq = DEMANDE_AJOUTER_LISTE;
     strcpy(req->r.reqAjouterListe.description, description);
     req->r.reqAjouterListe.port = port;
+}
+
+void initReqRetirerListe(req_t * req, demandeRetirerListe_t raison){
+    req->idReq = DEMANDE_RETIRER_LISTE;
+    req->r.reqRetirerListe = raison;
 }

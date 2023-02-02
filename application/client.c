@@ -122,7 +122,6 @@ void afficherListeDiffusion()
  */
 void serveurClient()
 {
-
     char IP[16];
     char desc[MAX_DESC];
     int port;
@@ -187,7 +186,18 @@ void *threadEcoute(int *se)
     pthread_cancel(tid);
     // arreterVideo(); //arrete la capture vidéo
     printf("Fin de la diffusion\n");
-    //TODO : envoyer requête au serveur principal, afin de l'informer de la fermeture de la diffusion.
+    
+    //on informe le serveur central de la fin de diffusion :
+    req_t demandeFinDiffusion, repServeur;
+    initReqRetirerListe(&demandeFinDiffusion, REASON_DEFAULT);
+    envoyerReqStream(sockDialogueServPrincipal, &demandeFinDiffusion, (fct_Serial *) &req_to_str);
+    lireRepStream(sockDialogueServPrincipal, &repServeur, (fct_Serial *) &str_to_rep);
+    if(repServeur.idReq != SUCCESS){
+        //TODO : à gérer (normalement impossible)
+        fprintf(stderr, "Le serveur central n'a pas accepté la fin de diffusion.");
+        PAUSE("");
+    }
+
     close(*se);
     pthread_exit(NULL);
 }

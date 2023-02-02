@@ -14,7 +14,7 @@ typedef struct infoListe{
     char description[MAX_DESC];
 } infoListe_t;
 
-typedef struct listInfos{
+typedef struct listeInfos{
     int taille;
     infoListe_t * tabInfos;
 }listeInfos_t;
@@ -34,6 +34,9 @@ typedef struct demandeAjouterListe{
     char description[MAX_DESC];
 } demandeAjouterListe_t;
 
+typedef struct demandeInfosDiffusion{
+    long id;
+} demandeInfosDiffusion_t;
 
 typedef enum idReq{
     UNDEFINED,
@@ -42,6 +45,7 @@ typedef enum idReq{
     DEMANDE_RETIRER_LISTE,  //Demande d'arrêt d'une diffusion d'un client
     DEMANDE_LISTE,          //Demande de la liste des diffusions ouvertes
     DEMANDE_AJOUTER_LISTE,  //Demande de nouvelle diffusion
+    DEMANDE_INFOS_DIFFUSION,//Demande les informations d'une diffusion d'après son id
     SOCKET_CLOSED,          //La socket a été closed
     BAD_REQUEST,            //Réponse du serveur lorsqu'un client a envoyé une requête erronée au serveur (données reçues incohérentes)
     SUCCESS,                //Réponse du serveur signifiant que la requête a été traitée avec succès. 
@@ -52,13 +56,15 @@ typedef struct req{
     idReq_t idReq;
     union{
         listeInfos_t reqListeInfos; //idReq = 1; à malloc
-        infosDiffusion_t reqInfosDiffusion;//idReq = 2
+        infosDiffusion_t repInfosDiffusion;//idReq = 2
         demandeRetirerListe_t reqRetirerListe;//idReq = 3
         demandeListe_t  reqDemandeListe;//idReq = 4
         demandeAjouterListe_t  reqAjouterListe;//idReq = 5
+        demandeInfosDiffusion_t reqInfosDiffusion;
     } r;
 } req_t;
 
 void str_to_rep(char *, req_t *);
 void req_to_str(req_t *, char *);
 void initReqAjouterListe(req_t * req, int port, char * description);
+void initReqRetirerListe(req_t * req, demandeRetirerListe_t raison);

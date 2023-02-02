@@ -34,17 +34,15 @@ void dialogueAvecServeur(int sd);
 void creerProcessusServeur(int se, int sd, struct sockaddr_in *clt);
 void * dialogueAvecClient(infoConnexion_t * pInfoConnexion);
 
-
 /**
  * \brief Trouve les informations d'une diffusion dans la liste de diffusions
  * 
- * \param pListe Liste de diffusion
+ * \param pListe Adresse de la liste de diffusion
+ * \param pInfos Adresse des informations de diffusion à remplir
  * \param id     id de la diffusion à trouver 
- * \return infosDiffusion_t* adresse d'une diffusion
- * \warning on doit avoir la pris la mutex pour éviter les erreurs, de telle façon que l'adresse 
- *          retournée ne soit pas libérée (free) en cas d'arrêt de la diffusion.
+ * \return int   si la diffusion a été trouvée, 0 sinon.
  */
-infosDiffusion_t * trouverDiffusion(listeDiffusions_t * pListe, long id);
+int getDiffusion(listeDiffusions_t * pListe, infosDiffusion_t * pInfos,  long id);
 
 /**
  * \brief Supprime une diffusion
@@ -56,4 +54,4 @@ infosDiffusion_t * trouverDiffusion(listeDiffusions_t * pListe, long id);
 int supprimerDiffusion(listeDiffusions_t * pListe, long id);
 
 void initListeDiffusions(listeDiffusions_t * pListe);
-void insererListeDiffusions(listeDiffusions_t * pListe, demandeAjouterListe_t * pDemandeDiffusion, char addrIP[MAX_DESC]);
+long insererListeDiffusions(listeDiffusions_t * pListe, demandeAjouterListe_t * pDemandeDiffusion, char addrIP[MAX_DESC]);
