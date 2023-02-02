@@ -55,3 +55,12 @@ int supprimerDiffusion(listeDiffusions_t * pListe, long id);
 
 void initListeDiffusions(listeDiffusions_t * pListe);
 long insererListeDiffusions(listeDiffusions_t * pListe, demandeAjouterListe_t * pDemandeDiffusion, char addrIP[MAX_DESC]);
+
+/**
+ * \brief Remplit une listeInfos_t avec une listeDiffusions_t 
+ * 
+ * \param pListeSrc  adresse de la liste de diffusion source
+ * \param pListeDest adresse de la liste d'informations de diffusion de destinations (contenant seulement l'id et la description de chaque diffusion)
+ * \return int 
+ */
+int listeDiffusions_to_listeInfos(listeDiffusions_t * pListeSrc, listeInfos_t * pListeDest);

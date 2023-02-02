@@ -51,8 +51,8 @@ typedef enum idReq{
 
 typedef struct req{
     idReq_t idReq;
-    union{
-        listeInfos_t reqListeInfos; //idReq = 1; à malloc
+    union req_union{
+        listeInfos_t repListeInfos; //idReq = 1; à malloc
         infosDiffusion_t repInfosDiffusion;//idReq = 2
         demandeRetirerListe_t reqRetirerListe;//idReq = 3
         demandeAjouterListe_t  reqAjouterListe;//idReq = 5
