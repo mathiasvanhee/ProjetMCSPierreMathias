@@ -1,9 +1,9 @@
 #include <opencv2/opencv.hpp>
 
-extern "C" {
+/*extern "C" {
     #include "../data/data.h"
     #include "../session/session.h"
-}
+}*/
 
 using namespace cv;
 using namespace std;

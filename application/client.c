@@ -232,9 +232,10 @@ void afficherListeDiffusion()
 }
 
 void connectDiffusion(long idDiff){
+    pthread_t tid;
     req_t demandeInfosDiffusion;
     req_t receptionInfosDiffusion;
-    initReqDemandeListe(&demandeInfosDiffusion, idDiff);
+    initReqDemInfosDiff(&demandeInfosDiffusion, idDiff);
     envoyerReqStream(sockDialogueServPrincipal, &demandeInfosDiffusion, (fct_Serial *) &req_to_str);
     lireRepStream(sockDialogueServPrincipal, &receptionInfosDiffusion, (fct_Serial *) &str_to_rep);
 
@@ -248,8 +249,7 @@ void connectDiffusion(long idDiff){
 
     int sockDialogueDiff = creerSocket(SOCK_DGRAM);
     connectSrv(sockDialogueDiff, receptionInfosDiffusion.r.repInfosDiffusion.addrIP, receptionInfosDiffusion.r.repInfosDiffusion.port);
-
-    pthread_create(&tid, NULL, (void *) &recevoirDiffusion, (void *) &sockDialogueDiff);
+    pthread_create(&tid, NULL, (pf_t)&regarderDiffusion, &sockDialogueDiff);
 }
 
 
@@ -287,7 +287,13 @@ void serveurClient()
         return;
     }
 
-    // demarrerVideo(); //lance la capture vidéo
+    //lance la capture vidéo
+    if(!demarrerVideo()){
+        close(se);
+        fprintf(stderr, "La caméra n'est pas ouverte !");
+        PAUSE("");
+        return;
+    } 
     // On envoie requête au serveur principal, afin de l'informer de la création d'une diffusion.
     req_t demandeAjouterListe, repServeur;
     initReqAjouterListe(&demandeAjouterListe, port, desc);
@@ -321,7 +327,7 @@ void *threadEcoute(int *se)
         ;
 
     pthread_cancel(tid);
-    // arreterVideo(); //arrete la capture vidéo
+    arreterVideo(); //arrete la capture vidéo
     //printf("Fin de la diffusion\n");
 
     // on informe le serveur central de la fin de diffusion :

@@ -1,5 +1,16 @@
 #include "gestionVideo.h"
 
+#include <unistd.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <errno.h>
+
+
 int capDev = 0;
 VideoCapture cap;
 
@@ -49,7 +60,9 @@ extern "C" void *diffusion(void *ptr){
         frame.copyTo(image);
         cvtColor(image, frameGray, cv::COLOR_BGRA2GRAY);
         //On envoie l'image : 
-        CHECK(send(socket, frameGray.data, frameSize, 0), "problème d'envoi");
+        if(send(socket, frameGray.data, frameSize, 0) <= 0){
+            clientStopped = true;
+        }
     }
 
     close(socket);

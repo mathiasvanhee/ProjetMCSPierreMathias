@@ -4,6 +4,7 @@
 #include "../gestionVideo/gestionVideo.h"
 #include <pthread.h>
 #include <ncurses.h>
+#include <curses.h>
 #include <semaphore.h>
 
 #define NBMAX_THREADS 10
@@ -64,3 +65,6 @@ long insererListeDiffusions(listeDiffusions_t * pListe, demandeAjouterListe_t * 
  * \return int 
  */
 int listeDiffusions_to_listeInfos(listeDiffusions_t * pListeSrc, listeInfos_t * pListeDest);
+
+
+void connectDiffusion(long idDiff);

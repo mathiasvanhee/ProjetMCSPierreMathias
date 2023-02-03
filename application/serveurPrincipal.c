@@ -16,7 +16,7 @@ int main(int argc, char const *argv[])
     CHECK(sem_init(&mutexConnexion, 0, 0), "init mutexConnexion");
     CHECK(sem_init(&mutexListeDiffusions, 0, 1), "init mutexListeDiffusions");
 
-    CHECK(se = creerSockAddrEcoute("127.0.0.1",5250, 5), "PB creerSockAddrEcoute : busy");
+    CHECK(se = creerSockAddrEcoute((char *)"127.0.0.1",5250, 5), "PB creerSockAddrEcoute : busy");
     
     
     while(1){
@@ -112,14 +112,14 @@ void * dialogueAvecClient(infoConnexion_t * pInfoConnexion)
 
 void initListeDiffusions(listeDiffusions_t * pListe){
     pListe->taille = 0;
-    pListe->tabPInfos = malloc(sizeof(infosDiffusion_t * ) * BLOC_MEM_LISTE);
+    pListe->tabPInfos = (infosDiffusion_t **) malloc(sizeof(infosDiffusion_t * ) * BLOC_MEM_LISTE);
     pListe->alloc_len = BLOC_MEM_LISTE;
 }
 
 long insererListeDiffusions(listeDiffusions_t * pListe, demandeAjouterListe_t * pDemandeDiffusion, char addrIP[MAX_DESC]){
     long returnId;
     infosDiffusion_t * pNewDiff;
-    pNewDiff = malloc(sizeof(infosDiffusion_t));
+    pNewDiff = (infosDiffusion_t*) malloc(sizeof(infosDiffusion_t));
     
     strcpy(pNewDiff->addrIP, addrIP);
     strcpy(pNewDiff->description, pDemandeDiffusion->description);
@@ -132,7 +132,7 @@ long insererListeDiffusions(listeDiffusions_t * pListe, demandeAjouterListe_t * 
     //on réalloue si on a pas assez allloué de cases
     if(pListe->taille == pListe->alloc_len){
         pListe->alloc_len += BLOC_MEM_LISTE;
-        pListe->tabPInfos = realloc(pListe->tabPInfos, sizeof(pNewDiff) * pListe->alloc_len);
+        pListe->tabPInfos = (infosDiffusion_t**) realloc(pListe->tabPInfos, sizeof(pNewDiff) * pListe->alloc_len);
     }
 
     //insertion
@@ -198,7 +198,7 @@ int supprimerDiffusion(listeDiffusions_t * pListe, long id){
     //on réalloue si on a pas réduit assez
     if(pListe->taille <= pListe->alloc_len - BLOC_MEM_LISTE){
         pListe->alloc_len -= BLOC_MEM_LISTE;
-        pListe->tabPInfos = realloc(pListe->tabPInfos, sizeof(infosDiffusion_t *) * pListe->alloc_len);
+        pListe->tabPInfos = (infosDiffusion_t **) realloc(pListe->tabPInfos, sizeof(infosDiffusion_t *) * pListe->alloc_len);
     }
 
     //on libère la mutex
@@ -209,7 +209,7 @@ int supprimerDiffusion(listeDiffusions_t * pListe, long id){
 int listeDiffusions_to_listeInfos(listeDiffusions_t * pListeSrc, listeInfos_t * pListeDest){
     sem_wait(&mutexListeDiffusions);
     pListeDest->taille = pListeSrc->taille;
-    pListeDest->tabInfos = malloc(sizeof(infoListe_t) * pListeDest->taille);
+    pListeDest->tabInfos = (infoListe_t *) malloc(sizeof(infoListe_t) * pListeDest->taille);
     if(pListeDest->tabInfos == NULL){
         sem_post(&mutexListeDiffusions);
         return 0;

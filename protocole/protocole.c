@@ -10,20 +10,20 @@ void str_to_rep(char * serial, req_t * rep){
         rep->idReq = SOCKET_CLOSED;
         return;
     }
-    rep->idReq = atoi(token);
+    rep->idReq = (idReq_t)atoi(token);
 
     switch (rep->idReq)
     {
     case LISTE_INFOS:
         rep->r.repListeInfos.taille = 10;
-        rep->r.repListeInfos.tabInfos = malloc(rep->r.repListeInfos.taille * sizeof(infoListe_t));
+        rep->r.repListeInfos.tabInfos = (infoListe_t *) malloc(rep->r.repListeInfos.taille * sizeof(infoListe_t));
         // On realloc dès qu'on ajoute un élément car la taille est variable (inconnue au départ) (ici par bloc de 10)
         for (i = 0;; i++)
         {
             if (i >= rep->r.repListeInfos.taille)
             {
                 rep->r.repListeInfos.taille += 10;
-                rep->r.repListeInfos.tabInfos = realloc(rep->r.repListeInfos.tabInfos, rep->r.repListeInfos.taille * sizeof(infoListe_t));
+                rep->r.repListeInfos.tabInfos = (infoListe_t *) realloc(rep->r.repListeInfos.tabInfos, rep->r.repListeInfos.taille * sizeof(infoListe_t));
             }
             token = strtok(NULL, ":");
             if (token == NULL)
@@ -39,7 +39,7 @@ void str_to_rep(char * serial, req_t * rep){
             strcpy(rep->r.repListeInfos.tabInfos[i].description, token);
         }
         rep->r.repListeInfos.taille = i;
-        rep->r.repListeInfos.tabInfos = realloc(rep->r.repListeInfos.tabInfos, rep->r.repListeInfos.taille * sizeof(infoListe_t));
+        rep->r.repListeInfos.tabInfos = (infoListe_t *) realloc(rep->r.repListeInfos.tabInfos, rep->r.repListeInfos.taille * sizeof(infoListe_t));
         break;
 
     case INFOS_DIFFUSION:
@@ -75,7 +75,7 @@ void str_to_rep(char * serial, req_t * rep){
             rep->idReq = BAD_REQUEST;
             return;
         }
-        rep->r.reqRetirerListe = atoi(token);
+        rep->r.reqRetirerListe = (demandeRetirerListe_t) atoi(token);
         break;
 
     case DEMANDE_AJOUTER_LISTE:
