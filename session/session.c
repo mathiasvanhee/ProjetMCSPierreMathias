@@ -12,10 +12,7 @@ int creerSocket(int type){
 
 int adresserSocket(int sock, char * IPaddr, short port){
     struct sockaddr_in addr;
-    addr.sin_family = PF_INET;
-    inet_aton(IPaddr, &addr.sin_addr);
-    addr.sin_port = htons(port);
-    memset(&addr.sin_zero, 0, 8);
+    initAddr(&addr, IPaddr, port);
     return bind(sock, (struct sockaddr *) &addr, sizeof(addr));
 }
 
@@ -44,14 +41,17 @@ int attenteAppel(int sockEcoute, struct sockaddr_in * pClt)
 void connectSrv(int sock, char * IPaddr, short port)
 {
     struct sockaddr_in addr;
-    addr.sin_family = PF_INET;
-    inet_aton(IPaddr, &addr.sin_addr);
-    addr.sin_port = htons(port);
-    memset(&addr.sin_zero, 0, 8);
+    initAddr(&addr, IPaddr, port);
     CHECK(connect(sock, (struct sockaddr *)&addr, sizeof(addr)), "Pb-connect");
 }
 
 
-
+void initAddr(struct sockaddr_in * pAddr, char * IPaddr, short port)
+{
+    pAddr->sin_family = PF_INET;
+    inet_aton(IPaddr, &pAddr->sin_addr);
+    pAddr->sin_port = htons(port);
+    memset(&pAddr->sin_zero, 0, 8);
+}
 
 

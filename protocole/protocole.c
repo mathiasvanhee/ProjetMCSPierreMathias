@@ -105,6 +105,15 @@ void str_to_rep(char * serial, req_t * rep){
         }
         rep->r.reqInfosDiffusion.id = atoi(token);
         break;
+    case PORT_DGRAM :
+        token = strtok(NULL, ":");
+        if (token == NULL)
+        {
+            rep->idReq = BAD_REQUEST;
+            return;
+        }
+        rep->r.portDgram = atoi(token);
+        break;
     //toutes les requêtes qui n'ont pas besoin de paramètres : 
     case DEMANDE_LISTE:
     case BAD_REQUEST:
@@ -158,6 +167,10 @@ void req_to_str(req_t * req, char * serial){
         strcat(serial, temp);
         break;
 
+    case PORT_DGRAM :
+        sprintf(temp, ":%d", req->r.portDgram);
+        strcat(serial, temp);
+        break;
     default:
         break;
     }

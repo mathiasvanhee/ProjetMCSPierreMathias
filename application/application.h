@@ -9,6 +9,8 @@
 
 #define NBMAX_THREADS 10
 #define BLOC_MEM_LISTE 5 //on realloc la taille de la liste de diffusion toutes les 5 cases
+#define DEBUT_PORT_DGRAM 6000
+
 typedef void * (*pf_t)(void *);
 
 typedef struct infoConnexion{
@@ -41,7 +43,7 @@ void * dialogueAvecClient(infoConnexion_t * pInfoConnexion);
  * \param pListe Adresse de la liste de diffusion
  * \param pInfos Adresse des informations de diffusion à remplir
  * \param id     id de la diffusion à trouver 
- * \return int   si la diffusion a été trouvée, 0 sinon.
+ * \return int   1 si la diffusion a été trouvée, 0 sinon.
  */
 int getDiffusion(listeDiffusions_t * pListe, infosDiffusion_t * pInfos,  long id);
 
@@ -68,3 +70,5 @@ int listeDiffusions_to_listeInfos(listeDiffusions_t * pListeSrc, listeInfos_t * 
 
 
 void connectDiffusion(long idDiff);
+
+void messageQuitter();

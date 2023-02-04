@@ -29,14 +29,14 @@ int lireDgram(int sock, struct sockaddr_in *src, char *buffer)
  * @brief Ecriture d'un message datagramme
  *
  * @param sock : descripteur de socket
- * @param src : adresse du client
+ * @param src : adresse distante
  * @param buffer : buffer d'envoi
  * @return int : nombre d'octets écrits
  */
-int ecrireDgram(int sock, struct sockaddr_in *src, char *buffer)
+int ecrireDgram(int sock, struct sockaddr_in *addr, char *buffer)
 {
     int nbOctets;
-    CHECK(nbOctets = sendto(sock, buffer, strlen(buffer) + 1, 0, (struct sockaddr *)src, sizeof(src)), "Pb-sendto");
+    CHECK(nbOctets = sendto(sock, buffer, strlen(buffer) + 1, 0, (struct sockaddr *)addr, sizeof(*addr)), "Pb-sendto");
     return nbOctets;
 }
 
@@ -76,10 +76,10 @@ void envoyerReqStream(int sock, void *req, fct_Serial * reqToSerial){
     ecrireStream(sock, buffer);
 }
 
-void envoyerReqDgram(int sock, void *req, fct_Serial * reqToSerial, struct sockaddr_in *src){
+void envoyerReqDgram(int sock, void *req, fct_Serial * reqToSerial, struct sockaddr_in *addr){
     char buffer[1024];
     (*reqToSerial)(req,buffer);
-    ecrireDgram(sock, src, buffer);
+    ecrireDgram(sock, addr, buffer);
 }
 
 void lireRepStream(int sock, void *req, fct_Serial * serialToRep){

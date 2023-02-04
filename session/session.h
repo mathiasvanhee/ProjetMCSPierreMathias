@@ -24,9 +24,28 @@
 
 
 int creerSocket(int type);
+
+/**
+ * \brief Remplit l'adresse locale de la socket
+ * 
+ * \param sock 
+ * \param IPaddr 
+ * \param port 
+ * \return int 
+ */
 int adresserSocket(int sock, char * IPaddr, short port);
+
+/**
+ * \brief Creer la socket et remplit l'adresse locale de celle-ci
+ * 
+ * \param type 
+ * \param IPaddr 
+ * \param port 
+ * \return int 
+ */
 int creerSocketAddr(int type, char * IPaddr, short port);
 int creerSockAddrEcoute(char * IPaddr, short port, int maxfile);
 int attenteAppel(int sockEcoute, struct sockaddr_in * pClt);
 void connectSrv(int sock, char * IPaddr, short port);
+void initAddr(struct sockaddr_in * pAddr, char * IPaddr, short port);
 

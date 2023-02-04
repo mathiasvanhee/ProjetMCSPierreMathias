@@ -88,7 +88,7 @@ void * dialogueAvecClient(infoConnexion_t * pInfoConnexion)
             repServ.idReq = BAD_REQUEST;
             break;
         case DEMANDE_INFOS_DIFFUSION : 
-            if(getDiffusion(&listeDiffusions, &repServ.r.repInfosDiffusion, reqClient.r.reqInfosDiffusion.id) == 0){
+            if(getDiffusion(&listeDiffusions, &repServ.r.repInfosDiffusion, reqClient.r.reqInfosDiffusion.id) == 1){
                 repServ.idReq = INFOS_DIFFUSION;
             }
             else{

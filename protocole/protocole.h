@@ -35,6 +35,8 @@ typedef struct demandeInfosDiffusion{
     long id;
 } demandeInfosDiffusion_t;
 
+
+
 typedef enum idReq{
     UNDEFINED,
     LISTE_INFOS,            //Réponse du serveur principal à la demande de la liste des diffusions ouvertes       
@@ -43,6 +45,7 @@ typedef enum idReq{
     DEMANDE_LISTE,          //Demande de la liste des diffusions ouvertes
     DEMANDE_AJOUTER_LISTE,  //Demande de nouvelle diffusion
     DEMANDE_INFOS_DIFFUSION,//Demande les informations d'une diffusion d'après son id
+    PORT_DGRAM,             //Requete pour informer du port de la socket de diffusion datagram.
     SOCKET_CLOSED,          //La socket a été closed
     BAD_REQUEST,            //Réponse du serveur lorsqu'un client a envoyé une requête erronée au serveur (données reçues incohérentes)
     SUCCESS,                //Réponse du serveur signifiant que la requête a été traitée avec succès. 
@@ -57,6 +60,7 @@ typedef struct req{
         demandeRetirerListe_t reqRetirerListe;//idReq = 3
         demandeAjouterListe_t  reqAjouterListe;//idReq = 5
         demandeInfosDiffusion_t reqInfosDiffusion;
+        int portDgram; //idReq = PORT_DGRAM
     } r;
 } req_t;
 

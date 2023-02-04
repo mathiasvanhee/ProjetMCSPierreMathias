@@ -1,9 +1,23 @@
-#include <opencv2/opencv.hpp>
+//#include <opencv2/opencv.hpp>
+#include <opencv2/highgui.hpp>
+#include <opencv2/videoio.hpp>
+#include <opencv2/imgproc.hpp>
+#include <iostream>
 
-/*extern "C" {
-    #include "../data/data.h"
-    #include "../session/session.h"
-}*/
+#include <unistd.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <errno.h>
+
+
+#ifndef PAUSE
+#define PAUSE(msg) printf("%s [touche]", msg); getchar();
+#endif
 
 using namespace cv;
 using namespace std;
@@ -22,19 +36,19 @@ typedef struct infosConnexion
  * \warning     La fonction demarrerVideo doit avoir été appelée avant.
  * \warning     la socket doit être bien initialisée
  */
-extern "C" void *diffusion(void *ptr);
+void *diffusion(void *ptr);
 
 /**
  * \brief demarre la capture vidéo, et demande à l'utilisateur quel type de capture utiliser.
  * 
  */
-extern "C" int demarrerVideo();
+int demarrerVideo();
 
 /**
  * \brief arrête la capture vidéo
  * 
  */
-extern "C" int arreterVideo();
+int arreterVideo();
 
 /**
  * \brief       Affiche une diffusion d'un serveur
@@ -42,4 +56,13 @@ extern "C" int arreterVideo();
  * \note        A utiliser en tant que thread.
  * \warning     La socket doit être bien initialisée
  */
-extern "C" void *regarderDiffusion(void *ptr);
+void *regarderDiffusion(void *ptr);
+
+void* afficherDiffusion(void *p);
+
+int recvfrom_bigbuffer(int sock, void *buffer, size_t buflen, int flags,
+                       struct sockaddr *src_addr, socklen_t *addrlen);
+
+int sendto_bigbuffer(int sock, const void *buffer, const size_t buflen, int flags,
+                     const struct sockaddr *dest_addr, socklen_t addrlen);
+

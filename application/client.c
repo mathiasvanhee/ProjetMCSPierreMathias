@@ -14,7 +14,6 @@ int main(int argc, char const *argv[])
 
 void dialogueAvecServeur(int sd)
 {
-    PAUSE("PAUSE");
     while (Menu() != 0)
         ;
 }
@@ -111,6 +110,10 @@ int Menu()
     }
 }
 
+/**
+ * @brief Affiche la liste des diffusions en cours
+ * 
+ */
 void afficherListeDiffusion()
 {
     req_t demandeListe;
@@ -123,29 +126,47 @@ void afficherListeDiffusion()
     WINDOW *list = newwin(7, 100, 0, 30);
     start_color();
     init_pair(1, COLOR_BLACK, COLOR_WHITE); // The order is pair_number, foreground, background
+    init_pair(2, COLOR_BLUE, COLOR_WHITE); // The order is pair_number, foreground, background
+    init_pair(3, COLOR_RED, COLOR_WHITE); // The order is pair_number, foreground, background
     wbkgd(list, COLOR_PAIR(1));
     curs_set(0);
     keypad(list, TRUE);
     wrefresh(list);
 
+    messageQuitter();
+
     if (receptionListe.idReq != LISTE_INFOS)// si la requete n'est pas une liste d'infos
     {
-        //mvwprintw(list,2,1,"Erreur de reception de la liste des diffusions");
+        move(2,65);
+        attron(COLOR_PAIR(3));
+        printw("PROBLEME DE CONNEXION");
         refresh();
-        PAUSE("");
-        delwin(list);
-        erase();
-        return;
+        attroff(COLOR_PAIR(3));
+        while(1){
+            if (wgetch(list) == 'q')
+            {
+                delwin(list);
+                erase();
+                return;
+            }
+        }
     }
     if (receptionListe.r.repListeInfos.taille == 0)
     {
-        //mvwprintw(list,2,1,"Aucune diffusion en cours");
+        move(2,65);
+        attron(COLOR_PAIR(3));
+        printw("AUCUNE DIFFUSION EN COURS");
         refresh();
-        PAUSE("");
-        delwin(list);
-        erase();
+        attroff(COLOR_PAIR(3));
         free(receptionListe.r.repListeInfos.tabInfos);
-        return;
+        while(1){
+            if (wgetch(list) == 'q')
+            {
+                delwin(list);
+                erase();
+                return;
+            }
+        }
     }
 
     int action;
@@ -161,19 +182,18 @@ void afficherListeDiffusion()
 
     while (1)
     {
-
         for (int i = debSelect; i < (debSelect + incrementation); i++)
         {
             if (i == (selectionEnCours + debSelect))
                 wattron(list, A_REVERSE); // met en surbrillance le choix actuel
             if (i < tailleListe)
             {
-                mvwprintw(list, i + 1 - debSelect, 1, "%s", receptionListe.r.repListeInfos.tabInfos[i].description);
+                mvwprintw(list, i + 1 - debSelect, 1, "-| %s", receptionListe.r.repListeInfos.tabInfos[i].description);
                 wattroff(list, A_REVERSE);
             }
         }
         action = wgetch(list);
-
+        messageQuitter();
         switch (action)
         {
         case KEY_UP:
@@ -231,10 +251,22 @@ void afficherListeDiffusion()
     }
 }
 
+void messageQuitter(){
+    move(0,48);
+    attron(COLOR_PAIR(2));
+    printw("Pour quitter l'application, appuyez sur la touche 'q'");
+    refresh();
+    attroff(COLOR_PAIR(2));
+}
+
 void connectDiffusion(long idDiff){
     pthread_t tid;
     req_t demandeInfosDiffusion;
     req_t receptionInfosDiffusion;
+
+    req_t receptionPort, repOK;
+
+    struct sockaddr_in diffuseur;
     initReqDemInfosDiff(&demandeInfosDiffusion, idDiff);
     envoyerReqStream(sockDialogueServPrincipal, &demandeInfosDiffusion, (fct_Serial *) &req_to_str);
     lireRepStream(sockDialogueServPrincipal, &receptionInfosDiffusion, (fct_Serial *) &str_to_rep);
@@ -247,9 +279,26 @@ void connectDiffusion(long idDiff){
         return;
     }
 
-    int sockDialogueDiff = creerSocket(SOCK_DGRAM);
+    int sockDialogueDiff = creerSocket(SOCK_STREAM);
+
+
     connectSrv(sockDialogueDiff, receptionInfosDiffusion.r.repInfosDiffusion.addrIP, receptionInfosDiffusion.r.repInfosDiffusion.port);
-    pthread_create(&tid, NULL, (pf_t)&regarderDiffusion, &sockDialogueDiff);
+
+    lireRepStream(sockDialogueDiff, &receptionPort, (fct_Serial *) &str_to_rep);
+    if(receptionPort.idReq != PORT_DGRAM){
+        //mvwprintw(list,2,1,"Erreur de reception de la liste des diffusions");
+        refresh();
+        return;
+    }
+
+    //int sockRecepDgram = creerSocketAddr(SOCK_DGRAM, receptionInfosDiffusion.r.repInfosDiffusion.addrIP, receptionPort.r.portDgram);
+    int sockRecepDgram = creerSocket(SOCK_DGRAM);
+    initAddr(&diffuseur, receptionInfosDiffusion.r.repInfosDiffusion.addrIP, receptionPort.r.portDgram);
+
+    repOK.idReq = SUCCESS;
+    envoyerReqDgram(sockRecepDgram, &repOK, (fct_Serial *) &req_to_str, &diffuseur);
+
+    pthread_create(&tid, NULL, (pf_t)&regarderDiffusion, (void *) (long) sockRecepDgram);
 }
 
 
@@ -303,6 +352,7 @@ void serveurClient()
     {
         close(se);
         fprintf(stderr, "Le serveur central n'a pas accepté la diffusion.");
+        arreterVideo();
         PAUSE("");
         return;
     }
@@ -348,14 +398,38 @@ void *threadEcoute(int *se)
 
 void *connectThread()
 {
-    int sd;
+    int sd, socketVideoDgram;
     int nbThread = 0;
+    int portDgram = DEBUT_PORT_DGRAM;
     struct sockaddr_in clt;
     pthread_t tids[NBMAX_THREADS];
     while (diffusionEnCours)
     {
         sd = attenteAppel(se, &clt);
-        pthread_create(&tids[nbThread++], NULL, (pf_t)diffusion, NULL);
+
+
+
+        //TODO truc
+        req_t envoiPort;
+        //req_t rep;
+        struct sockaddr_in clt;
+
+
+        socketVideoDgram = creerSocket(SOCK_DGRAM);
+        while(adresserSocket(socketVideoDgram, "0.0.0.0", portDgram) == -1){
+            portDgram++;
+        }
+        
+
+        envoiPort.idReq = PORT_DGRAM;
+        envoiPort.r.portDgram = portDgram;
+        envoyerReqStream(sd, &envoiPort, (fct_Serial *) &req_to_str);
+
+        //lireRepDgram(socketVideoDgram, &rep, str_to_rep, &clt);
+
+
+        long param = (long) socketVideoDgram;
+        pthread_create(&tids[nbThread++], NULL, (pf_t) diffusion, (void * )param);
     }
     pthread_exit(NULL);
 }
