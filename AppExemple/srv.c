@@ -25,7 +25,7 @@ int main(int argc, char const *argv[])
 
     se = creerSockAddrEcoute("127.0.0.1",5250, 5);
     while(1){
-        sd = attenteAppel(se, &clt);
+        CHECK(sd = attenteAppel(se, &clt), "Pb accept");
         creerProcessusServeur(se, sd, &clt);
         close(sd);
     }

@@ -110,7 +110,7 @@ void* regarderDiffusion(void *ptr){
 
     namedWindow("Video stream : S pour stopper",1);
     while (key != 's') {
-        if ((bytes = recvfrom_bigbuffer(socket, iptr, imgSize , MSG_WAITALL, (struct sockaddr *)&clt, &cltLen)) == -1) {
+        if ((bytes = recvfrom_bigbuffer(socket, iptr, imgSize , MSG_WAITALL, (struct sockaddr *)&clt, &cltLen)) <= 0) {
             break;
         }
         

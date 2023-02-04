@@ -34,7 +34,7 @@ int attenteAppel(int sockEcoute, struct sockaddr_in * pClt)
 {
     int sockDialogue;
     socklen_t len = sizeof(*pClt);
-    CHECK(sockDialogue = accept(sockEcoute, (struct sockaddr *) pClt, &len), "Pb accept");
+    sockDialogue = accept(sockEcoute, (struct sockaddr *) pClt, &len);
     return sockDialogue;
 }
 

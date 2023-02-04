@@ -291,6 +291,8 @@ void connectDiffusion(long idDiff){
         return;
     }
 
+    close(sockDialogueDiff);
+
     //int sockRecepDgram = creerSocketAddr(SOCK_DGRAM, receptionInfosDiffusion.r.repInfosDiffusion.addrIP, receptionPort.r.portDgram);
     int sockRecepDgram = creerSocket(SOCK_DGRAM);
     initAddr(&diffuseur, receptionInfosDiffusion.r.repInfosDiffusion.addrIP, receptionPort.r.portDgram);
@@ -406,6 +408,9 @@ void *connectThread()
     while (diffusionEnCours)
     {
         sd = attenteAppel(se, &clt);
+        if(sd == -1){
+            continue;
+        }
 
 
 
@@ -431,6 +436,9 @@ void *connectThread()
         long param = (long) socketVideoDgram;
         pthread_create(&tids[nbThread++], NULL, (pf_t) diffusion, (void * )param);
     }
+
+    close(sd);
+    close(socketVideoDgram);
     pthread_exit(NULL);
 }
 
