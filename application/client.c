@@ -18,10 +18,6 @@ void dialogueAvecServeur(int sd)
         ;
 }
 
-/**
- * @brief Menu de l'application
- *
- */
 int Menu()
 {
     initscr();
@@ -110,10 +106,6 @@ int Menu()
     }
 }
 
-/**
- * @brief Affiche la liste des diffusions en cours
- * 
- */
 void afficherListeDiffusion()
 {
     req_t demandeListe;
@@ -304,10 +296,7 @@ void connectDiffusion(long idDiff){
 }
 
 
-/**
- * @brief création d'un serveur d'écoute pour la diffuion
- *
- */
+
 void serveurClient()
 {
     char IP[16];
@@ -380,7 +369,6 @@ void *threadEcoute(int *se)
 
     pthread_cancel(tid);
     arreterVideo(); //arrete la capture vidéo
-    //printf("Fin de la diffusion\n");
 
     // on informe le serveur central de la fin de diffusion :
     req_t demandeFinDiffusion, repServeur;
@@ -389,7 +377,6 @@ void *threadEcoute(int *se)
     lireRepStream(sockDialogueServPrincipal, &repServeur, (fct_Serial *)&str_to_rep);
     if (repServeur.idReq != SUCCESS)
     {
-        // TODO : à gérer (normalement impossible)
         fprintf(stderr, "Le serveur central n'a pas accepté la fin de diffusion.");
         PAUSE("");
     }
@@ -411,12 +398,7 @@ void *connectThread()
         if(sd == -1){
             continue;
         }
-
-
-
-        //TODO truc
         req_t envoiPort;
-        //req_t rep;
         struct sockaddr_in clt;
 
 
@@ -429,9 +411,6 @@ void *connectThread()
         envoiPort.idReq = PORT_DGRAM;
         envoiPort.r.portDgram = portDgram;
         envoyerReqStream(sd, &envoiPort, (fct_Serial *) &req_to_str);
-
-        //lireRepDgram(socketVideoDgram, &rep, str_to_rep, &clt);
-
 
         long param = (long) socketVideoDgram;
         pthread_create(&tids[nbThread++], NULL, (pf_t) diffusion, (void * )param);

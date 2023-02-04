@@ -25,16 +25,72 @@ typedef struct listeDiffusions{
 }listeDiffusions_t;
 
 //dans client.c
+
+/**
+ * \brief Affichage et gestion du menu proposé au client.
+ * 
+ * \return int      0 si l'utilisateur souhaite quitter l'application, 1 sinon. 
+ */
 int Menu();
+
+/**
+ * \brief Affiche la liste des diffusions actives possibles de regarder.
+ * \note  Communique avec le serveur principal pour récuperer cette liste,
+ *  et lance la fonction permettant de regarder la diffusion sélectionné lorsque
+ * l'utilisateur appuie sur la touche [ENTRÉE].
+ * 
+ */
 void afficherListeDiffusion();
+
+/**
+ * \brief gère la création d'une diffusion à partir des entrées de l'utilisateur.
+ *
+ */
 void serveurClient();
+
+
+/**
+ * \brief Thread d'écoute pour la diffusion. Attend la connexion des clients
+ * distants voulant regarder la diffusion, et lance la fonction de transmission vidéo
+ * pour ceux-ci.
+ *
+ * \param se    adresse de la socket d'écoute.
+ */
 void* threadEcoute(int* se);
+
+/**
+ * \brief fonction qui gère les connexions des clients pour regarder le stream.
+ * 
+ */
 void *connectThread();
+
 void viderBuffer();
+
+/**
+ * \brief Permet au client de se connecter à la diffusion d'un autre client, afin de
+ * recevoir la diffusion vidéo.
+ * 
+ * \param idDiff    id de la diffusion à laquelle le client veut se connecter.
+ */
+void connectDiffusion(long idDiff);
+
+/**
+ * \brief Affiche le message permettant à l'utilisateur de savoir
+ * quelle touche appuyer pour quitter l'affichage de la liste des diffusions.
+ * 
+ */
+void messageQuitter();
+
+/**
+ * \brief Fonction de dialogue du client avec le serveur central.
+ * 
+ * \param sd socket de dialogue.
+ */
 void dialogueAvecServeur(int sd);
 
 //dans serveurPrincipal.c
-void creerProcessusServeur(int se, int sd, struct sockaddr_in *clt);
+
+
 void * dialogueAvecClient(infoConnexion_t * pInfoConnexion);
 
 /**
@@ -56,7 +112,23 @@ int getDiffusion(listeDiffusions_t * pListe, infosDiffusion_t * pInfos,  long id
  */
 int supprimerDiffusion(listeDiffusions_t * pListe, long id);
 
+
+/**
+ * \brief Initialise la liste des diffusions enregistrées côté serveur.
+ * 
+ * \param pListe Adresse de la liste de diffusion.
+ */
 void initListeDiffusions(listeDiffusions_t * pListe);
+
+
+/**
+ * \brief Insère une nouvelle diffusion dans la liste des diffusions enregistrées du serveur principal.
+ * 
+ * \param pListe            Adresse de la liste de diffusion.
+ * \param pDemandeDiffusion Adresse de la requête d'ajout de diffusion dans la liste.
+ * \param addrIP            Adresse IP du diffuseur.
+ * \return long             <tt>id</tt> de la diffusion insérée.
+ */
 long insererListeDiffusions(listeDiffusions_t * pListe, demandeAjouterListe_t * pDemandeDiffusion, char addrIP[MAX_DESC]);
 
 /**
@@ -64,11 +136,6 @@ long insererListeDiffusions(listeDiffusions_t * pListe, demandeAjouterListe_t * 
  * 
  * \param pListeSrc  adresse de la liste de diffusion source
  * \param pListeDest adresse de la liste d'informations de diffusion de destinations (contenant seulement l'id et la description de chaque diffusion)
- * \return int 
+ * \return int       1 si la fonction a réussie, 0 sinon.   
  */
 int listeDiffusions_to_listeInfos(listeDiffusions_t * pListeSrc, listeInfos_t * pListeDest);
-
-
-void connectDiffusion(long idDiff);
-
-void messageQuitter();
