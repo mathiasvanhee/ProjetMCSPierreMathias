@@ -6,10 +6,8 @@ int nextIdGlobal = 1;
 
 int main(int argc, char const *argv[])
 {
-    //struct sockaddr_in clt;
     infoConnexion_t infoConnexion;
     int se, nbThread = 0;
-    //pthread_t tids[NBMAX_THREADS];
     pthread_t tid;
     initListeDiffusions(&listeDiffusions);
     
@@ -21,7 +19,6 @@ int main(int argc, char const *argv[])
     
     while(1){
         infoConnexion.sd = attenteAppel(se, &infoConnexion.addrClt);
-        //pthread_create(&tids[nbThread++], NULL, (pf_t)&dialogueAvecClient, &infoConnexion);
         pthread_create(&tid, NULL, (pf_t)&dialogueAvecClient, &infoConnexion);
         sem_wait(&mutexConnexion);
     }
@@ -55,7 +52,7 @@ void * dialogueAvecClient(infoConnexion_t * pInfoConnexion)
         case DEMANDE_RETIRER_LISTE:
             supprimerDiffusion(&listeDiffusions, idDiffusionClient);
             isClientEnDiffusion = 0;
-            repServ.idReq = SUCCESS;//pas encore traitée
+            repServ.idReq = SUCCESS;
             break;
 
         case DEMANDE_LISTE:
