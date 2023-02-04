@@ -38,7 +38,6 @@ void *diffusion(void *ptr){
     }
 
 
-    //TODO : appeler un thread qui attend qu'on demande une fin de diffusion
     //ce thread prend en argument l'adresse de la variable clientStopped, qui se met à 0 lorsqu'il arrête de regarder la diffusion.
 
     while(isCapturing) {
@@ -54,11 +53,6 @@ void *diffusion(void *ptr){
         frame.copyTo(image);
         cvtColor(image, frameGray, cv::COLOR_BGRA2GRAY);
         //On envoie l'image : 
-        // if(send(socket, frameGray.data, frameSize, 0) <= 0){
-        //     clientStopped = true;
-        // }
-        //nbOctets = sendto(sock, buffer, strlen(buffer) + 1, 0, (struct sockaddr *)addr, sizeof(addr)), "Pb-sendto")
-        //send processed image
         if ((bytes = sendto_bigbuffer(socket, frameGray.data, frameSize, 0, (struct sockaddr *)&clt, cltLen)) < 0){
                 std::cerr << "bytes = " << bytes << std::endl;
                 perror("pb envoi image : ");
@@ -72,7 +66,6 @@ void *diffusion(void *ptr){
 }
 
 int demarrerVideo(){
-    //TODO : demander la caméra / capture d'écran à l'utilisateur
     int camera = 0;
     
     if(cap.open(camera)){
@@ -86,7 +79,6 @@ int demarrerVideo(){
 int arreterVideo(){
     isCapturing = 0;
     cap.release();
-    //pthread_join(affichagevideo_tid,NULL);
     return 1;
 }
 
